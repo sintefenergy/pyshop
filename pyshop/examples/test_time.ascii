@@ -1,0 +1,10 @@
+OPTIMIZATION time
+#Start_time;   End_time;
+20180227	20180228
+
+#    N_full_iterations   Accuracy;
+OPTIMIZATION 100 -1
+#Id  Number  Start_Time  Time_unit  Period  Data_type  Y_unit  Pts
+	0	0	20180227	HOUR	525600	0	HOUR	1
+# Time      Time_resolution
+2018022700	1.000

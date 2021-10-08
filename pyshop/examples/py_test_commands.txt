@@ -1,0 +1,10 @@
+set solver /cplex
+
+set universal_mip /on
+
+start sim 3
+set code /inc
+start sim 3
+
+return simres res.txt
+return simres /gen res_gen.txt

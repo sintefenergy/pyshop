@@ -1,0 +1,116 @@
+RESERVOIR attributes Reservoir1
+#ID;Water_course;Type;Maxvol;Lrl;Hrl;
+10000       0      0  12.00000  90.00000  100.00000 
+
+RESERVOIR vol_head Reservoir1
+#Id;Number;Reference;Pts;X_unit;Y_unit
+10000      0      0.000      9 MM3 METER
+#  x_value;   y_value;
+   0.00000  90.00000 
+  12.00000  100.00000 
+  14.00000  101.00000 
+
+RESERVOIR flow_descr Reservoir1
+#Id;Number;Reference;Pts;X_unit;Y_unit
+10000      0      0.000      2 METER M3/S
+#  x_value;   y_value;
+ 100.00000      0.000 
+ 101.00000   1000.000 
+
+PLANT attributes Plant1 
+#Id;Water_course;Type;Bid_area;Prod_area;Num_units;Num_pumps;
+10500       0      0      1      1      1      0 
+#Num_main_seg;Num_penstock;Time_delay;Prod_factor;Outlet_line;
+     1      1      0      0.000     40.000 
+#Main tunnell loss
+ 0.0002
+#penstock loss
+ 0.0001
+
+GENERATOR attributes Plant1 1 
+#Id Type Penstock Nom_prod Min_prod Max_prod Start_cost 
+10600 0      1     100.0      25.0     100.0   500.000 
+
+GENERATOR gen_eff_curve Plant1 1 
+#Id;Number;Reference;Pts;X_unit;Y_unit
+10600      0      0.000      2 MW %
+#  x_value;   y_value;
+  0.0 95.0 
+100.0 98.0 
+
+GENERATOR turb_eff_curves Plant1 1
+#Id;Number;Reference;Pts;X_unit;Y_unit
+10600      0    90.000      3 M3/S %
+#  x_value;   y_value;
+ 25.0   80.0
+ 90.0   95.0
+100.0   90.0
+
+GENERATOR turb_eff_curves Plant1 1
+#Id;Number;Reference;Pts;X_unit;Y_unit
+10600      0    100.000      3 M3/S %
+#  x_value;   y_value;
+ 25.0   82.0
+ 90.0   98.0
+100.0   92.0
+
+RESERVOIR attributes Reservoir2
+#ID;Water_course;Type;Maxvol;Lrl;Hrl;
+10000       0      0  5.00000  40.00000  50.00000 
+
+RESERVOIR vol_head Reservoir2
+#Id;Number;Reference;Pts;X_unit;Y_unit
+10000      0      0.000      9 MM3 METER
+#  x_value;   y_value;
+   0.00000  40.00000 
+   5.00000  50.00000 
+   6.00000  51.00000 
+
+RESERVOIR flow_descr Reservoir2
+#Id;Number;Reference;Pts;X_unit;Y_unit
+10000      0      0.000      2 METER M3/S
+#  x_value;   y_value;
+ 50.00000      0.000 
+ 51.00000   1000.000 
+
+PLANT attributes Plant2 
+#Id;Water_course;Type;Bid_area;Prod_area;Num_units;Num_pumps;
+10500       0      0      1      1      1      0 
+#Num_main_seg;Num_penstock;Time_delay;Prod_factor;Outlet_line;
+     1      1      0      0.000     0.000 
+#Main tunnell loss
+ 0.0002
+#penstock loss
+ 0.0001
+
+GENERATOR attributes Plant2 1 
+#Id Type Penstock Nom_prod Min_prod Max_prod Start_cost 
+10600 0      1     100.0      25.0     100.0   500.000 
+
+GENERATOR gen_eff_curve Plant2 1 
+#Id;Number;Reference;Pts;X_unit;Y_unit
+10600      0      0.000      2 MW %
+#  x_value;   y_value;
+  0.0 95.0 
+100.0 98.0 
+
+GENERATOR turb_eff_curves Plant2 1
+#Id;Number;Reference;Pts;X_unit;Y_unit
+10600      0    90.000      3 M3/S %
+#  x_value;   y_value;
+ 25.0   80.0
+ 90.0   95.0
+100.0   90.0
+
+GENERATOR turb_eff_curves Plant2 1
+#Id;Number;Reference;Pts;X_unit;Y_unit
+10600      0    100.000      3 M3/S %
+#  x_value;   y_value;
+ 25.0   82.0
+ 90.0   98.0
+100.0   92.0
+
+#       From_type/To_type  From_name      To_name
+CONNECT RESERVOIR/PLANT    Reservoir1     Plant1
+CONNECT PLANT/RESERVOIR    Plant1         Reservoir2
+CONNECT RESERVOIR/PLANT    Reservoir2     Plant2

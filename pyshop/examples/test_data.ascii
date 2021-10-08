@@ -1,0 +1,51 @@
+STARTRES 	2  METER
+# Name	Start reservoir(meters above sea level)
+Reservoir1	92
+Reservoir2	43
+
+RESERVOIR	inflow	Reservoir1
+#	Id	number	starttime		time_unit	period	data_type	y_unit	npts
+	0	0	2018022700	HOUR		8760		-1	M3/S	1
+#	time		y
+2018022700	101
+2018022701	50
+
+RESERVOIR	inflow	Reservoir2
+#	Id	number	starttime		time_unit	period	data_type	y_unit	npts
+	0	0	2018022700	HOUR		8760		-1	M3/S	1
+#	time		y
+2018022700	0
+
+RESERVOIR endpoint_desc Reservoir1
+#	Number	Ref	Npkt	x_unit	y_unit
+0	1	0	1	Mm3	Kroner
+0	39.7
+
+RESERVOIR endpoint_desc Reservoir2
+#	Number	Ref	Npkt	x_unit	y_unit
+0	1	0	1	Mm3	Kroner
+0	38.6
+
+MULTI_MARKET	price_buy	1
+#	Id	number	starttime		time_unit	period	data_type	y_unit	npts
+	0	0	2018022700	HOUR		8760		-1	M3/S	1
+#	time		y
+2018022700	40.01
+
+MULTI_MARKET	price_sale	1
+#	Id	number	starttime		time_unit	period	data_type	y_unit	npts
+	0	0	2018022700	HOUR		8760		-1	M3/S	1
+#	time		y
+2018022700	39.99
+
+MULTI_MARKET	max_buy	1
+#	Id	number	starttime		time_unit	period	data_type	y_unit	npts
+	0	0	2018022700	HOUR		8760		-1	M3/S	1
+#	time		y
+2018022700	9999
+
+MULTI_MARKET	max_sale	1
+#	Id	number	starttime		time_unit	period	data_type	y_unit	npts
+	0	0	2018022700	HOUR		8760		-1	M3/S	1
+#	time		y
+2018022700	9999
