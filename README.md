@@ -2,7 +2,7 @@
 The nicest python interface to SHOP
 # 1 Place missing external libraries into *this* directory
 
-> NOTE: You may not distribut cplex library as it requires end user license
+> NOTE: You may not distribute cplex library as it requires end user license
 
 You will find these under /shop/bin
 
