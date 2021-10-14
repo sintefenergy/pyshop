@@ -21,6 +21,7 @@ class ShopSession(object):
         if license_path:
             os.environ['ICC_COMMAND_PATH'] = license_path
         
+        #Add ICC_COMMAND_PATH (which is license_path if specified) to the system path to find shop_pybind.pyd and solver dll files
         sys.path.insert(0,os.environ['ICC_COMMAND_PATH'])
 
         import shop_pybind as pb
