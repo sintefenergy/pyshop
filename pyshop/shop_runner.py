@@ -21,8 +21,12 @@ class ShopSession(object):
         if license_path:
             os.environ['ICC_COMMAND_PATH'] = license_path
         
-        #Add ICC_COMMAND_PATH (which is license_path if specified) to the system path to find shop_pybind.pyd and solver dll files
-        sys.path.insert(0,os.environ['ICC_COMMAND_PATH'])
+        #Insert either the solver_path or the ICC_COMMAND_PATH to sys.path to find shop_pybind.pyd and solver dlls
+        if solver_path:
+            solver_path = os.path.abspath(solver_path)
+            sys.path.insert(1,solver_path)
+        else:            
+            sys.path.insert(1,os.environ['ICC_COMMAND_PATH'])
 
         import shop_pybind as pb
 
@@ -32,12 +36,11 @@ class ShopSession(object):
             self.shop_api = pb.ShopCore(silent_console, silent_log, log_file, log_gets)
         else:
             self.shop_api = pb.ShopCore(silent_console, silent_log)
+        
+        #Override where SHOP will look for solver dlls
         if solver_path:
-            abs_path = os.path.abspath(solver_path)
-            self.shop_api.OverrideDllPath(abs_path)
-        if solver_path:
-            abs_path = os.path.abspath(solver_path)
-            self.shop_api.OverrideDllPath(abs_path)
+            self.shop_api.OverrideDllPath(solver_path)
+            
         self.model = ModelBuilderType(self.shop_api)
         self._commands = {x.replace(' ', '_'): x for x in self.shop_api.GetCommandTypesInSystem()}
         self._all_messages = []
