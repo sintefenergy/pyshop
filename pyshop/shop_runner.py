@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 import pandas as pd
 import numpy as np
 
@@ -19,7 +20,11 @@ class ShopSession(object):
         # @param license_path The path where the license file, solver and solver interface are located
         if license_path:
             os.environ['ICC_COMMAND_PATH'] = license_path
-        import pyshop.shop_pybind as pb
+        
+        sys.path.insert(0,os.environ['ICC_COMMAND_PATH'])
+
+        import shop_pybind as pb
+
         silent_console = silent
         silent_log = suppress_log
         if log_file:
