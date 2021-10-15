@@ -2,7 +2,7 @@ from distutils.core import setup
 import sys
 
 setup(name='pyshop',
-      version='14.0.2.1',
+      version='0.0.1',
       author='SINTEF Energy Research',
       description='Python interface to SHOP.',
       packages=['pyshop',
