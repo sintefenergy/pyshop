@@ -43,7 +43,7 @@ The SHOP license file, `SHOP_license.dat`, must always be located in the directo
 Now that pyshop is installed, the SHOP binaries are downloaded, and the license file and binary paths are located, it is possible to run SHOP in python using pyshop:
 
     import pyshop as pys
-    shop = pys.ShopSession(license_path="C:/My/License/File/Path", solver_path="C:/SHOP/versions/14.0.2.2")
+    shop = pys.ShopSession(license_path="C:/License/File/Path", solver_path="C:/SHOP/versions/14")
     
     #Set time resolution
     #Build topolgy

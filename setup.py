@@ -1,10 +1,18 @@
 from distutils.core import setup
 import sys
+import pathlib
+
+here = pathlib.Path(__file__).parent.resolve()
+
+# Get the long description from the README file
+long_description = (here / 'README.md').read_text(encoding='utf-8')
 
 setup(name='pyshop',
-      version='0.0.3',
+      version='0.0.4.dev1',
       author='SINTEF Energy Research',
       description='Python interface to SHOP',
+      long_description=long_description,
+      long_description_content_type='text/markdown',
       packages=['pyshop',
                 'pyshop.helpers',
                 'pyshop.shopcore'],
@@ -30,5 +38,5 @@ setup(name='pyshop',
       ],
       author_email='support.energy@sintef.no',
       license='Commercial',
-      python_requires='>=3.7, <=3.9',
+      python_requires='>=3.7, <3.9',
       install_requires=['matplotlib', 'pandas', 'numpy', 'graphviz', 'pybind11'])
