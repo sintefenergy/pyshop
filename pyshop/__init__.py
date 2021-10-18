@@ -1,1 +1,1 @@
-from .shop_runner import ShopSession, ShopRestSession
+from .shop_runner import ShopSession

@@ -88,9 +88,9 @@ junc2.connect().plant['Plant2'].add()
 rsv1.start_head.set(92)
 rsv2.start_head.set(92)
 rsv3.start_head.set(43)
-rsv1.endpoint_desc_nok_mwh.set(pd.Series([39.7], index=[0]))
-rsv2.endpoint_desc_nok_mwh.set(pd.Series([39.7], index=[0]))
-rsv3.endpoint_desc_nok_mwh.set(pd.Series([38.6], index=[0]))
+rsv1.energy_value_input.set(39.7)
+rsv2.energy_value_input.set(39.7)
+rsv3.energy_value_input.set(38.6)
 
 shop.model.market.add_object('Day_ahead')
 da=shop.model.market.Day_ahead
