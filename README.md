@@ -1,8 +1,12 @@
 # pyshop
 The nicest python interface to SHOP!
 
+SHOP (Short-term Hydro Operation Planning) is a modeling tool for short-term hydro operation planning developed by SINTEF Energy Research in Trondheim, Norway. SHOP is used for both scientific and commerical purposes, please visit the [SHOP home page](https://www.sintef.no/en/software/shop/) for further information and inquiries regarding access and use.
+
+The pyshop package is an open source python wrapper for SHOP, and requires the proper SHOP binaries to function (see step 2).
+
 ## 1 Installing pyshop
-The pyshop package can be installed using pip, the package installer for python: https://pip.pypa.io/en/stable/. Please make sure that you have installed pip and that it is found in your path. You can install the official pyshop release by opening a terminal and giving the following command:
+The pyshop package can be installed using pip, the package installer for python. Please visit the [pip home page](https://pip.pypa.io/en/stable/) for installation and any pip related issues. You can install the official pyshop release through the terminal command:
 
 `pip install sintef-pyshop`
 
@@ -10,7 +14,7 @@ You can also clone this repository and install the latest development version. T
 
 `pip install .`
 
-You should see pyshop appear in the list of installed python modules if you give the command:
+You should now see pyshop appear in the list of installed python modules when typing:
 
 `pip list`
 
@@ -18,7 +22,7 @@ You should see pyshop appear in the list of installed python modules if you give
 
 > NOTE: You may not distribute the cplex library as it requires end user license
 
-The SHOP core is separate from the pyshop package, and must be downloaded separately. The latest SHOP binaries are found on the SHOP Portal under the "Files" tab: https://shop.sintef.energy/files/.
+The SHOP core is separate from the pyshop package, and must be downloaded separately. The latest SHOP binaries are found on the [SHOP Portal](https://shop.sintef.energy/files/). Access to the portal must be granted by SINTEF Energy Research.
 
 The following binaries are required for pyshop to run:
 
@@ -43,6 +47,7 @@ The SHOP license file, `SHOP_license.dat`, must always be located in the directo
 Now that pyshop is installed, the SHOP binaries are downloaded, and the license file and binary paths are located, it is possible to run SHOP in python using pyshop:
 
     import pyshop as pys
+    
     shop = pys.ShopSession(license_path="C:/License/File/Path", solver_path="C:/SHOP/versions/14")
     
     #Set time resolution
@@ -51,4 +56,4 @@ Now that pyshop is installed, the SHOP binaries are downloaded, and the license 
     #Run model
     #Retreive results
 
-Please visit the SHOP Portal for detailed tutorials and examples using pyshop: https://shop.sintef.energy/documentation/.
+Please visit the SHOP Portal for a detailed [tutorial](https://shop.sintef.energy/documentation/tutorials/pyshop/) and several [examples](https://shop.sintef.energy/documentation/examples/) using pyshop.
