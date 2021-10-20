@@ -21,6 +21,9 @@ class ShopSession(object):
         if license_path:
             os.environ['ICC_COMMAND_PATH'] = license_path
         
+        if 'ICC_COMMAND_PATH' not in os.environ:
+            print("The environment variable 'ICC_COMMAND_PATH' is not set. Please use the keyword argument 'license_path' to specify the location of the SHOP license file.")
+            
         #Insert either the solver_path or the ICC_COMMAND_PATH to sys.path to find shop_pybind.pyd and solver dlls
         if solver_path:
             solver_path = os.path.abspath(solver_path)
