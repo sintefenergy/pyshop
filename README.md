@@ -32,11 +32,10 @@ Windows:
 - shop_pybind.pyd
 
 Linux:
-- cplex2010.so
 - shop_cplex_interface.so
 - shop_pybind.so
 
-The solver specific binary is listed as cplex2010 here, but will change as new CPLEX versions become available. It is also possible to use the GUROBI and OSI solvers with SHOP.
+The solver specific binary is listed as cplex2010 here, but will change as new CPLEX versions become available. It is also possible to use the GUROBI and OSI solvers with SHOP. Note that the shop_cplex_interface.so also contains the CPLEX binaries in the Linux distribution, and so there is no cplex2010.so file.
 
 ## 3 Environment and license file
 
