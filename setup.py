@@ -7,7 +7,7 @@ here = pathlib.Path(__file__).parent.resolve()
 # Get the long description from the README file
 long_description = (here / 'README.md').read_text(encoding='utf-8')
 
-setup(name='pyshop',
+setup(name='sintef-pyshop',
       version='1.0.0.dev1',
       author='SINTEF Energy Research',
       description='Python interface to SHOP',
