@@ -27,7 +27,7 @@ setup(name='pyshop',
       },
       classifiers=[
           'Development Status :: 4 - Beta',
-          #'License :: OSI Approved :: MIT License',
+          'License :: OSI Approved :: MIT License',
           'Intended Audience :: Developers',
           'Intended Audience :: End Users/Desktop',
           'Intended Audience :: Education',
