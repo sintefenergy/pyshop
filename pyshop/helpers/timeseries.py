@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 
-def create_constant_time_series(value, start=pd.Timestamp('1970-01-01', tz='UTC')):
+def create_constant_time_series(value, start=pd.Timestamp('1970-01-01')):
     return pd.Series([value], index=[start])
 
 

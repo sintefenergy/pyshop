@@ -21,5 +21,5 @@ def get_shop_datetime(time_string):
 
     # Return timestamp using format string inferred from input time_string
     relevant_time_format = time_format[0:relevant_time_format_len]
-    timestamp = pd.to_datetime(time_string, format=relevant_time_format, utc=True)
+    timestamp = pd.to_datetime(time_string, format=relevant_time_format)
     return timestamp
