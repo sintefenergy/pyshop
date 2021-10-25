@@ -6,7 +6,7 @@ def get_shop_timestring(timestamp):
     return timestamp.strftime('%Y%m%d%H%M%S')
 
 
-def get_shop_datetime(time_string):
+def get_shop_datetime(time_string, time_zone_name):
     time_format = '%Y%m%d%H%M%S'
     time_string = time_string[0:14]
     time_string_len = len(time_string)
@@ -21,5 +21,8 @@ def get_shop_datetime(time_string):
 
     # Return timestamp using format string inferred from input time_string
     relevant_time_format = time_format[0:relevant_time_format_len]
-    timestamp = pd.to_datetime(time_string, format=relevant_time_format)
+    if len(time_zone_name) > 0:
+        timestamp = pd.to_datetime(time_string, format=relevant_time_format, tz = time_zone_name)
+    else:
+        timestamp = pd.to_datetime(time_string, format=relevant_time_format)
     return timestamp

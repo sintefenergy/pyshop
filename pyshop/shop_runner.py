@@ -96,7 +96,12 @@ class ShopSession(object):
         else:
             timeres_t = timeresolution.index.values
             self.shop_api.SetTimeResolution(start_string, end_string, timeunit, timeres_t, timeresolution.values)
-    
+
+        #Save the time zone in the API so that it can be added to the output TXYs 
+        tz = starttime.tzinfo
+        if tz is not None:
+            self.shop_api.SetTimeZone(tz.zone)
+
     def get_time_resolution(self):
         # Get time resolution
         return get_time_resolution(self.shop_api)

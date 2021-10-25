@@ -55,13 +55,15 @@ def get_attribute_value(shop_api, object_name, object_type, attribute_name, data
                     value.append(v)
                     offset += n_items
     elif datatype == 'xyt':
-        start = get_shop_datetime(shop_api.GetStartTime())
-        end = get_shop_datetime(shop_api.GetEndTime())
+        tz_name = shop_api.GetTimeZone()
+        start = get_shop_datetime(shop_api.GetStartTime(),tz_name)
+        end = get_shop_datetime(shop_api.GetEndTime(),tz_name)
         value = get_xyt_attribute(shop_api, object_name, object_type, attribute_name, start, end, dataframe)
     elif datatype == 'txy':
         start_time = shop_api.GetTxySeriesStartTime(object_type, object_name, attribute_name)
         if start_time:
-            start_time = get_shop_datetime(start_time)
+            tz_name = shop_api.GetTimeZone()
+            start_time = get_shop_datetime(start_time,tz_name)
             t = shop_api.GetTxySeriesT(object_type, object_name, attribute_name)
             y = shop_api.GetTxySeriesY(object_type, object_name, attribute_name)
             time_unit = shop_api.GetTimeUnit()
@@ -84,8 +86,9 @@ def get_xyt_attribute(shop_api, object_name, object_type, attribute_name, start,
               'This will likely not work as intended')
 
     # Identify the indices that should be extracted from the xyt series
-    shop_start_time = get_shop_datetime(shop_api.GetStartTime())
-    shop_end_time = get_shop_datetime(shop_api.GetEndTime())
+    tz_name = shop_api.GetTimeZone()
+    shop_start_time = get_shop_datetime(shop_api.GetStartTime(),tz_name)
+    shop_end_time = get_shop_datetime(shop_api.GetEndTime(),tz_name)
     min_time_index = int((start - shop_start_time)/(resolution*delta))
     max_time_index = int((end - shop_start_time)/(resolution*delta))
 
@@ -198,12 +201,14 @@ def set_attribute(shop_api, object_name, object_type, attribute_name, datatype, 
     elif datatype == 'xyt':
         return
     elif datatype == 'txy':
+        time = get_time_resolution(shop_api)
+
         # Make sure we continue on with a Series or a DataFrame
         if isinstance(value, float) or isinstance(value, int):
-            df = create_constant_time_series(value)
+            df = create_constant_time_series(value, time['starttime'])
         else:
             df = value
-        time = get_time_resolution(shop_api)
+
         if df.shape[0] == 0:
             shop_api.SetTxySeries(object_type, object_name, attribute_name,
                                   get_shop_timestring(time['starttime']), [], [])
@@ -247,8 +252,9 @@ def set_attribute(shop_api, object_name, object_type, attribute_name, datatype, 
 
 
 def get_time_resolution(shop_api):
-    starttime = get_shop_datetime(shop_api.GetStartTime())
-    endtime = get_shop_datetime(shop_api.GetEndTime())
+    tz_name = shop_api.GetTimeZone()
+    starttime = get_shop_datetime(shop_api.GetStartTime(),tz_name)
+    endtime = get_shop_datetime(shop_api.GetEndTime(),tz_name)
     timeunit = shop_api.GetTimeUnit()
     t = shop_api.GetTimeResolutionT()
     y = shop_api.GetTimeResolutionY()
