@@ -14,7 +14,13 @@ from .shopcore.shop_api import get_time_resolution
 class ShopSession(object):
     # Class for handling a SHOP session through the python API.
 
-    def __init__(self, license_path='', silent=True, log_file='', solver_path='', suppress_log=False, log_gets=True):
+    def __init__(self, license_path='', silent=True, log_file='', solver_path='', suppress_log=False, log_gets=True, name='unnamed', id=1):
+        #Used by the SHOP rest APi 
+        self._log_file = log_file
+        self._name = name
+        self._id = id
+        self._sim_has_started = False
+        
         # Initialize a new SHOP session
         #
         # @param license_path The path where the license file, solver and solver interface are located
