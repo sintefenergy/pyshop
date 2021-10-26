@@ -30,12 +30,22 @@ def get_timestamp_indexed_series(starttime, time_unit, t, y, column_name='data')
         delta = pd.Timedelta(seconds=1)
     else:
         delta = pd.Timedelta(hours=1)
-    t = np.repeat(starttime.to_datetime64(), t.size) + t * delta
+
+    #Remove time zone info before calling to_datetime64 which automatically converts timestamps to utc time
+    tz_name = starttime.tzname()
+    if tz_name is not None:
+        starttime = starttime.tz_localize(tz=None)
+
+    t = np.repeat(starttime.to_datetime64(), t.size) + t * delta    
     if y.size > t.size:  # Stochastic
         value = pd.DataFrame(data=y, index=t)
     else:
         value = pd.Series(data=y.flatten(), index=t, name=column_name)
     value[value >= 1.0e40] = np.nan
+    
+    #Add the original time zone info back
+    if tz_name is not None:
+        value.index = value.index.tz_localize(tz=tz_name)
     return value
 
 
