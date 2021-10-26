@@ -8,7 +8,7 @@ here = pathlib.Path(__file__).parent.resolve()
 long_description = (here / 'README.md').read_text(encoding='utf-8')
 
 setup(name='sintef-pyshop',
-      version='1.0.0.dev4',
+      version='1.0.0.dev5',
       author='SINTEF Energy Research',
       description='Python interface to SHOP',
       long_description=long_description,
