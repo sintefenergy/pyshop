@@ -21,8 +21,9 @@ def get_shop_datetime(time_string, time_zone_name):
 
     # Return timestamp using format string inferred from input time_string
     relevant_time_format = time_format[0:relevant_time_format_len]
+    timestamp = pd.to_datetime(time_string, format=relevant_time_format)
+
     if len(time_zone_name) > 0:
-        timestamp = pd.to_datetime(time_string, format=relevant_time_format, tz = time_zone_name)
-    else:
-        timestamp = pd.to_datetime(time_string, format=relevant_time_format)
+        timestamp = timestamp.tz_localize(time_zone_name)
+
     return timestamp
