@@ -37,7 +37,7 @@ plant1.main_loss.set([0.0002])
 plant1.penstock_loss.set([0.0001])
 
 p1g1 = shop.model.generator.add_object('Plant1_G1')
-plant1.connect().generator.Plant1_G1.add()
+plant1.connect_to(p1g1)
 p1g1.penstock.set(1)
 p1g1.p_min.set(25)
 p1g1.p_max.set(100)
@@ -65,7 +65,7 @@ plant2.main_loss.set([0.0002])
 plant2.penstock_loss.set([0.0001])
 
 p2g1 = shop.model.generator.add_object('Plant2_G1')
-plant2.connect().generator.Plant2_G1.add()
+plant2.connect_to(p2g1)
 p2g1.penstock.set(1)
 p2g1.p_min.set(25)
 p2g1.p_max.set(100)
@@ -77,9 +77,9 @@ p2g1.turb_eff_curves.set([pd.Series([80, 95, 90], index=[25, 90, 100], name=90),
 
 
 # Connect objects
-rsv1.connect().plant.Plant1.add()
-plant1.connect().reservoir.Reservoir2.add()
-rsv2.connect().plant.Plant2.add()
+rsv1.connect_to(plant1)
+plant1.connect_to(rsv2)
+rsv2.connect_to(plant2)
 
 rsv1.start_head.set(92)
 rsv2.start_head.set(43)
@@ -130,18 +130,28 @@ shop.start_sim([], ['3'])
 prod = shop.model.market.Day_ahead.sale_price.get()
 prod.plot()
 plt.title('Sale price')
+plt.show()
+
 prod = shop.model.reservoir.Reservoir1.inflow.get()
 prod.plot()
 plt.title('Reservoir 1 inflow')
+plt.show()
+
 prod = shop.model.plant.Plant1.production.get()
 prod.plot()
 plt.title('Production plant 1')
+plt.show()
+
 prod = shop.model.plant.Plant2.production.get()
 prod.plot()
 plt.title('Production plant 2')
+plt.show()
+
 prod = shop.model.reservoir.Reservoir1.storage.get()
 prod.plot()
 plt.title('Reservoir storage 1')
+plt.show()
+
 prod = shop.model.reservoir.Reservoir2.storage.get()
 prod.plot()
 plt.title('Reservoir storage 2')

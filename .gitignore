@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+#SHOP related
+*.lp
+*.lp.html
+pyshop/examples/res_gen.txt
+pyshop/examples/res.txt

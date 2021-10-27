@@ -30,3 +30,4 @@ prod.plot()
 
 prod = shop.model.reservoir.Reservoir2.storage.get()
 prod.plot()
+plt.show()
