@@ -7,7 +7,7 @@ from ..helpers.timeseries import create_constant_time_series, get_timestamp_inde
 
 def get_attribute_value(shop_api, object_name, object_type, attribute_name, datatype, dataframe=True):
     value = None
-    if datatype == 'int':
+    if datatype == 'int': 
         value = shop_api.GetIntValue(object_type, object_name, attribute_name)
     elif datatype == 'int_array':
         value = list(shop_api.GetIntArray(object_type, object_name, attribute_name))
