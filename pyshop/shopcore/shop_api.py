@@ -55,14 +55,14 @@ def get_attribute_value(shop_api, object_name, object_type, attribute_name, data
                     value.append(v)
                     offset += n_items
     elif datatype == 'xyt':
-        tz_name = shop_api.GetTimeZone()
+        tz_name = get_shop_timzone_name(shop_api)
         start = get_shop_datetime(shop_api.GetStartTime(),tz_name)
         end = get_shop_datetime(shop_api.GetEndTime(),tz_name)
         value = get_xyt_attribute(shop_api, object_name, object_type, attribute_name, start, end, dataframe)
     elif datatype == 'txy':
         start_time = shop_api.GetTxySeriesStartTime(object_type, object_name, attribute_name)
         if start_time:
-            tz_name = shop_api.GetTimeZone()
+            tz_name = get_shop_timzone_name(shop_api)
             start_time = get_shop_datetime(start_time,tz_name)
             t = shop_api.GetTxySeriesT(object_type, object_name, attribute_name)
             y = shop_api.GetTxySeriesY(object_type, object_name, attribute_name)
@@ -86,7 +86,7 @@ def get_xyt_attribute(shop_api, object_name, object_type, attribute_name, start,
               'This will likely not work as intended')
 
     # Identify the indices that should be extracted from the xyt series
-    tz_name = shop_api.GetTimeZone()
+    tz_name = get_shop_timzone_name(shop_api)
     shop_start_time = get_shop_datetime(shop_api.GetStartTime(),tz_name)
     shop_end_time = get_shop_datetime(shop_api.GetEndTime(),tz_name)
     min_time_index = int((start - shop_start_time)/(resolution*delta))
@@ -252,7 +252,7 @@ def set_attribute(shop_api, object_name, object_type, attribute_name, datatype, 
 
 
 def get_time_resolution(shop_api):
-    tz_name = shop_api.GetTimeZone()
+    tz_name = get_shop_timzone_name(shop_api)
     starttime = get_shop_datetime(shop_api.GetStartTime(),tz_name)
     endtime = get_shop_datetime(shop_api.GetEndTime(),tz_name)
     timeunit = shop_api.GetTimeUnit()
@@ -260,3 +260,11 @@ def get_time_resolution(shop_api):
     y = shop_api.GetTimeResolutionY()
     timeresolution = get_timestamp_indexed_series(starttime, timeunit, t, y)
     return dict(starttime=starttime, endtime=endtime, timeunit=timeunit, timeresolution=timeresolution)
+
+def get_shop_timzone_name(shop_api):
+    try:
+        tz_name = shop_api.GetTimeZone()
+    except AttributeError:  #For backwards compatability to SHOP 13
+        tz_name = ""
+    
+    return tz_name
