@@ -44,7 +44,7 @@ class ModelBuilderType(object):
         self._types = {object_type: ModelBuilderObject(self._shop_api, self, object_type, object_names)
                        for object_type, object_names in objects.items()}
 
-    def build_connection_tree(self, filename='topology', write_file=False):
+    def build_connection_tree(self, filename='topology', write_file=False, display_units=False):
         types = ['reservoir', 'plant', 'gate', 'junction', 'junction_gate', 'creek_intake', 'tunnel']
         relation_types = ['connection_standard', 'connection_spill', 'connection_bypass']
         object_types = self._shop_api.GetObjectTypesInSystem()
@@ -87,14 +87,19 @@ class ModelBuilderType(object):
                     for connection in self._shop_api.GetRelations(object_type, name, relation):
                         connections.append((i, connection, relation))
         for connection in connections:
-            if (object_types[connection[0]] == 'gate' or object_types[connection[1]] == 'gate') \
-                    and connection[2] != 'connection_standard':
+            input_type = object_types[connection[0]]
+            output_type = object_types[connection[1]]
+            
+            # Don't add generators and pumps to the graph if display_units is False 
+            if (input_type in ["generator", "pump"] or output_type in ["generator", "pump"]) and not display_units:                      
+                continue
+
+            if (input_type == 'gate' or output_type == 'gate') and connection[2] != 'connection_standard':
                 dot.attr('edge', style='dashed')
             else:
                 dot.attr('edge', style='solid', arrowtail='none', arrowhead='none')
-            if (object_types[connection[0]] != 'generator' and object_types[connection[1]] != 'generator'):
-                dot.edge('{0}_{1}'.format(object_types[connection[0]], object_names[connection[0]]),
-                         '{0}_{1}'.format(object_types[connection[1]], object_names[connection[1]]))
+
+            dot.edge('{0}_{1}'.format(input_type, object_names[connection[0]]), '{0}_{1}'.format(output_type, object_names[connection[1]]))
         for s in subgraphs:
             dot.subgraph(s)          
         if write_file:
