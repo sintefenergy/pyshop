@@ -9,6 +9,7 @@ from .helpers.time import get_shop_timestring
 from .shopcore.model_builder import ModelBuilderType
 from .shopcore.command_builder import CommandBuilder, get_derived_command_key
 from .shopcore.shop_api import get_time_resolution
+from .lp_model.lp_model import LpModelBuilder
 
 
 class ShopSession(object):
@@ -54,6 +55,7 @@ class ShopSession(object):
         self._commands = {x.replace(' ', '_'): x for x in self.shop_api.GetCommandTypesInSystem()}
         self._all_messages = []
         self._command = None
+        self.lp_model = LpModelBuilder(self)
 
     def __dir__(self):
         return list(self._commands.keys()) + [x for x in super().__dir__() if x[0] != '_' 
