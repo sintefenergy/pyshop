@@ -21,6 +21,8 @@ def get_attribute_value(shop_api, object_name, object_type, attribute_name, data
             value = None
     elif datatype == 'string':
         value = shop_api.GetStringValue(object_type, object_name, attribute_name)
+    elif datatype == 'string_array':
+        value = shop_api.GetStringArray(object_type, object_name, attribute_name)
     elif datatype == 'xy':
         ref = shop_api.GetXyCurveReference(object_type, object_name, attribute_name)
         x = np.fromiter(shop_api.GetXyCurveX(object_type, object_name, attribute_name), float)
