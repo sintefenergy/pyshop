@@ -52,10 +52,10 @@ class ShopSession(object):
             self.shop_api.OverrideDllPath(solver_path)
             
         self.model = ModelBuilderType(self.shop_api)
+        self.lp_model = LpModelBuilder(self)
         self._commands = {x.replace(' ', '_'): x for x in self.shop_api.GetCommandTypesInSystem()}
         self._all_messages = []
         self._command = None
-        self.lp_model = LpModelBuilder(self)
 
     def __dir__(self):
         return list(self._commands.keys()) + [x for x in super().__dir__() if x[0] != '_' 

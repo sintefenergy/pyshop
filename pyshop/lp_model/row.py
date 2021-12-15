@@ -92,7 +92,7 @@ class Row(object):
         self.lp_model.shop.model.lp_model.lp_model['add_row_coeff'].set(coefficients)
         self.lp_model.shop.model.lp_model.lp_model['add_row_rhs'].set(info['rhs'] if rhs == None else rhs)
         self.lp_model.shop.model.lp_model.lp_model['add_row_sense'].set(info['sense'] if sense == None else sense)
-
+        self.lp_model.shop.set_lp_row([],[])
         return self.lp_model.shop.model.lp_model.lp_model['add_row_last'].get()
 
     def get_index_values(self):

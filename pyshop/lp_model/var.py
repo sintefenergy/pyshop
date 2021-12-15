@@ -66,7 +66,7 @@ class Var(object):
         self.lp_model.shop.model.lp_model.lp_model['add_var_lb'].set(info['lb'] if lb == None else lb)
         self.lp_model.shop.model.lp_model.lp_model['add_var_cc'].set(info['cc'] if cc == None else cc)
         self.lp_model.shop.model.lp_model.lp_model['add_var_bin'].set((1 if info['bin'] else 0) if bin == None else bin)
-
+        self.lp_model.shop.set_lp_var([],[])
         return self.lp_model.shop.model.lp_model.lp_model['add_var_last'].get()
     
     def get_index_values(self):
