@@ -1,8 +1,8 @@
 import numpy as np
 
-from .row import *
-from .var import *
-from .index import *
+from .row import RowBuilder, RowTypeBuilder
+from .var import VarBuilder, VarTypeBuilder
+from .index import IndexTypeBuilder
 
 class LpModelBuilder(object):
 
