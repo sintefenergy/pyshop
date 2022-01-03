@@ -133,3 +133,6 @@ dmypy.json
 *.lp.html
 pyshop/examples/res_gen.txt
 pyshop/examples/res.txt
+
+#Visual studio
+.vs
