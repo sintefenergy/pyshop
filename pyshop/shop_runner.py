@@ -9,6 +9,7 @@ from .helpers.time import get_shop_timestring
 from .shopcore.model_builder import ModelBuilderType
 from .shopcore.command_builder import CommandBuilder, get_derived_command_key
 from .shopcore.shop_api import get_time_resolution
+from .lp_model.lp_model import LpModelBuilder
 
 
 class ShopSession(object):
@@ -51,6 +52,7 @@ class ShopSession(object):
             self.shop_api.OverrideDllPath(solver_path)
             
         self.model = ModelBuilderType(self.shop_api)
+        self.lp_model = LpModelBuilder(self)
         self._commands = {x.replace(' ', '_'): x for x in self.shop_api.GetCommandTypesInSystem()}
         self._all_messages = []
         self._command = None
