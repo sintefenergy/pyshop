@@ -162,6 +162,8 @@ def set_attribute(shop_api, object_name, object_type, attribute_name, datatype, 
         shop_api.SetDoubleArray(object_type, object_name, attribute_name, value)
     elif datatype == 'string':
         shop_api.SetStringValue(object_type, object_name, attribute_name, value)
+    elif datatype == 'string_array':
+        shop_api.SetStringArray(object_type, object_name, attribute_name, value)
     elif datatype == 'xy':
         if isinstance(value, pd.Series):
             ref = value.name
