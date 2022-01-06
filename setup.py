@@ -41,4 +41,4 @@ setup(name='sintef-pyshop',
       author_email='support.energy@sintef.no',
       license='MIT',
       python_requires='>=3.7, <3.9',
-      install_requires=['matplotlib', 'pandas', 'numpy', 'graphviz', 'pybind11'])
+      install_requires=['matplotlib', 'pandas', 'numpy', 'graphviz', 'pybind11', 'requests'])
