@@ -1,4 +1,15 @@
 import requests
+import json
+import numpy
+import pandas
+
+class NumpyArrayEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, numpy.ndarray):
+            return obj.tolist()
+        elif isinstance(obj, pandas.Index):
+            return obj.tolist()
+        return json.JSONEncoder.default(self, obj)
 
 class ShopRestNative(object):
     def __init__(self, shop_session):
@@ -20,5 +31,5 @@ class ShopRestNative(object):
             return requests.post(f'http://{shop_session._host}:{shop_session._port}/internal/{name}',
                                 headers={**shop_session._auth_headers, "session-id": str(shop_session._id)},
                                 # params=dict(session=shop_session._id),
-                                json=dict(args=args, kwargs=kwargs)).json()
+                                data=json.dumps(dict(args=args, kwargs=kwargs), cls=NumpyArrayEncoder)).json()
         return command_func
