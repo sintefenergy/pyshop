@@ -23,7 +23,7 @@ def get_timestamp_indexed_series(starttime, time_unit, t, y, column_name='data')
     if not isinstance(t, np.ndarray):
         t = np.fromiter(t, int)
     if not isinstance(y, np.ndarray):
-        y = np.fromiter(y, float)
+        y = np.array(y, dtype=float)
     if time_unit == 'minute':
         delta = pd.Timedelta(minutes=1)
     elif time_unit == 'second':
