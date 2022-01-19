@@ -91,8 +91,11 @@ class ModelBuilderType(object):
             output_type = object_types[connection[1]]
             
             # Don't add generators and pumps to the graph if display_units is False 
-            if (input_type in ["generator", "pump"] or output_type in ["generator", "pump"]) and not display_units:                      
-                continue
+            if input_type in ["generator", "pump"] or output_type in ["generator", "pump"]:
+                if not display_units:                      
+                    continue
+            elif input_type not in types or output_type not in types:
+                continue            
 
             if (input_type == 'gate' or output_type == 'gate') and connection[2] != 'connection_standard':
                 dot.attr('edge', style='dashed')
