@@ -1,13 +1,13 @@
 import requests
 import json
-import numpy
-import pandas
+import numpy as np
+import pandas as pd
 
 class NumpyArrayEncoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, numpy.ndarray):
+        if isinstance(obj, np.ndarray):
             return obj.tolist()
-        elif isinstance(obj, pandas.Index):
+        elif isinstance(obj, pd.Index):
             return obj.tolist()
         return json.JSONEncoder.default(self, obj)
 
