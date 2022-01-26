@@ -3,53 +3,76 @@ import os
 import sys
 import pandas as pd
 import numpy as np
+import requests
 
 from .helpers.commands import get_commands_from_file
 from .helpers.time import get_shop_timestring
 from .shopcore.model_builder import ModelBuilderType
 from .shopcore.command_builder import CommandBuilder, get_derived_command_key
 from .shopcore.shop_api import get_time_resolution
+from .shopcore.shop_rest import ShopRestNative
 from .lp_model.lp_model import LpModelBuilder
 
 
 class ShopSession(object):
     # Class for handling a SHOP session through the python API.
 
-    def __init__(self, license_path='', silent=True, log_file='', solver_path='', suppress_log=False, log_gets=True, name='unnamed', id=1):
+    def __init__(self, license_path='', silent=True, log_file='', solver_path='', suppress_log=False, log_gets=True, name='unnamed', id=1, host='', port=8000):
         #Used by the SHOP rest APi 
         self._log_file = log_file
         self._name = name
         self._id = id
         self._sim_has_started = False
-        
-        # Initialize a new SHOP session
-        #
-        # @param license_path The path where the license file, solver and solver interface are located
-        if license_path:
-            os.environ['ICC_COMMAND_PATH'] = license_path
-        
-        if 'ICC_COMMAND_PATH' not in os.environ:
-            print("The environment variable 'ICC_COMMAND_PATH' is not set. Please use the keyword argument 'license_path' to specify the location of the SHOP license file.")
-            
-        #Insert either the solver_path or the ICC_COMMAND_PATH to sys.path to find shop_pybind.pyd and solver dlls
-        if solver_path:
-            solver_path = os.path.abspath(solver_path)
-            sys.path.insert(1,solver_path)
-        else:            
-            sys.path.insert(1,os.environ['ICC_COMMAND_PATH'])
 
-        import shop_pybind as pb
-
-        silent_console = silent
-        silent_log = suppress_log
-        if log_file:
-            self.shop_api = pb.ShopCore(silent_console, silent_log, log_file, log_gets)
+        # Create rest client if host ip is given
+        if host:
+            self._host = host
+            self._port = port
+            self._auth_headers = {
+                'Content-Type': 'application/json'
+            }
+            response = requests.post(
+                f'http://{host}:{port}/session',
+                json=dict(session_name=name, log_file=log_file),
+                headers=self._auth_headers
+            )
+            if response.ok:
+                response_json = response.json()
+                self._id = response_json['session_id']
+                self._name = response_json['session_name']
+            else:
+                raise Exception(f"Could not connect to server: Status code {response.status_code}")
+            self.shop_api = ShopRestNative(self)
+        
         else:
-            self.shop_api = pb.ShopCore(silent_console, silent_log)
-        
-        #Override where SHOP will look for solver dlls
-        if solver_path:
-            self.shop_api.OverrideDllPath(solver_path)
+            # Initialize a new SHOP session
+            #
+            # @param license_path The path where the license file, solver and solver interface are located
+            if license_path:
+                os.environ['ICC_COMMAND_PATH'] = license_path
+            
+            if 'ICC_COMMAND_PATH' not in os.environ:
+                print("The environment variable 'ICC_COMMAND_PATH' is not set. Please use the keyword argument 'license_path' to specify the location of the SHOP license file.")
+                
+            #Insert either the solver_path or the ICC_COMMAND_PATH to sys.path to find shop_pybind.pyd and solver dlls
+            if solver_path:
+                solver_path = os.path.abspath(solver_path)
+                sys.path.insert(1,solver_path)
+            else:            
+                sys.path.insert(1,os.environ['ICC_COMMAND_PATH'])
+
+            import shop_pybind as pb
+
+            silent_console = silent
+            silent_log = suppress_log
+            if log_file:
+                self.shop_api = pb.ShopCore(silent_console, silent_log, log_file, log_gets)
+            else:
+                self.shop_api = pb.ShopCore(silent_console, silent_log)
+            
+            #Override where SHOP will look for solver dlls
+            if solver_path:
+                self.shop_api.OverrideDllPath(solver_path)
             
         self.model = ModelBuilderType(self.shop_api)
         self.lp_model = LpModelBuilder(self)
