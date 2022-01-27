@@ -1,12 +1,13 @@
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Sequence, Union
 import numpy as np
+from . import lp_model
 
 class Var(object):
 
-    lp_model:'LpModelBuilder'
+    lp_model:'lp_model.LpModelBuilder'
     id:int
 
-    def __init__(self, lp_model:'LpModelBuilder', var_id: int) -> None:
+    def __init__(self, lp_model:'lp_model.LpModelBuilder', var_id: int) -> None:
         self.lp_model = lp_model
         self.id = var_id
 
@@ -35,7 +36,7 @@ class Var(object):
         else:
             return None
 
-    def __dir__(self) -> np.array:
+    def __dir__(self) -> Sequence[str]:
         return np.append(
             ['id', 'type_id', 'type_name', 'type_abbrev', 'index_type_ids', 'index_type_names',
             'index_values', 'index_descriptions', 'ub', 'lb', 'cc', 'bin'],
@@ -63,7 +64,7 @@ class Var(object):
     def format(self) -> str:
         return '{} <= {}{} <= {}'.format(self.lb, self.type_abbrev, self.index_values, self.ub)
 
-    def set_parameters(self, ub: float=None, lb: float=None, cc: float=None, bin: int=None) -> int:
+    def set_parameters(self, ub: Optional[float]=None, lb: Optional[float]=None, cc: Optional[float]=None, bin: Optional[int]=None) -> int:
         info = self.info()
         self.lp_model.shop.model.lp_model.lp_model['add_var_type'].set(info['type_id'])
         self.lp_model.shop.model.lp_model.lp_model['add_var_index'].set(info['index_values'])
@@ -74,15 +75,15 @@ class Var(object):
         self.lp_model.shop.set_lp_var([],[])
         return self.lp_model.shop.model.lp_model.lp_model['add_var_last'].get()
     
-    def get_index_values(self) -> List[int]:
+    def get_index_values(self) -> Sequence[int]:
         lp_model = self.lp_model._lp_model
         return lp_model['var_index_val'][lp_model['var_index_beg'][self.id]:lp_model['var_index_beg'][self.id] + lp_model['var_index_cnt'][self.id]]
 
 class VarBuilder(object):
 
-    lp_model:'LpModelBuilder'
+    lp_model:'lp_model.LpModelBuilder'
 
-    def __init__(self, lp_model:'LpModelBuilder') -> None:
+    def __init__(self, lp_model:'lp_model.LpModelBuilder') -> None:
         self.lp_model = lp_model
 
     def __getitem__(self, item:int) -> Var:
@@ -95,12 +96,12 @@ class VarBuilder(object):
         if item == 'n_vars':
             return self.lp_model._lp_model["var_type"].size
     
-    def __dir__(self) -> np.array:
+    def __dir__(self) -> Sequence[str]:
         return np.append(
             super().__dir__(), 'n_vars'
         )
 
-    def filter(self, var_type:int=None, index_values:List[int]=[]) -> List[int]:
+    def filter(self, var_type:int=None, index_values:Sequence[int]=[]) -> List[int]:
         lp_model = self.lp_model
         result = []
         for (var_id, var_t) in enumerate(lp_model._lp_model['var_type']):
@@ -119,7 +120,7 @@ class VarBuilder(object):
                         result.append(var_id)
         return result
 
-    def add(self, variable_type: int, variable_index: list, ub: float=None, lb: float=None, cc: float=None, bin: int=None) -> int:
+    def add(self, variable_type: int, variable_index: Sequence[int], ub: Optional[float]=None, lb: Optional[float]=None, cc: Optional[float]=None, bin: Optional[int]=None) -> int:
         var_id = self.filter(var_type=variable_type, index_values=variable_index)
         self.lp_model.shop.model.lp_model.lp_model['add_var_type'].set(variable_type)
         self.lp_model.shop.model.lp_model.lp_model['add_var_index'].set(variable_index)
@@ -139,10 +140,10 @@ class VarBuilder(object):
 
 class VarType(object):
 
-    lp_model:'LpModelBuilder'
+    lp_model:'lp_model.LpModelBuilder'
     id:int
 
-    def __init__(self, lp_model:'LpModelBuilder', id:int) -> None:
+    def __init__(self, lp_model:'lp_model.LpModelBuilder', id:int) -> None:
         self.lp_model = lp_model
         self.id = id
 
@@ -161,7 +162,7 @@ class VarType(object):
     def __dir__(self) -> List[str]:
         return ['id', 'name', 'index_types', 'index_type_names']
 
-    def get_index_types(self) -> List[int]:
+    def get_index_types(self) -> Sequence[int]:
         index_type_beg = self.lp_model._lp_model['var_type_index_type_beg']
         index_type_cnt = self.lp_model._lp_model['var_type_index_type_cnt']
         index_type_val = self.lp_model._lp_model['var_type_index_type_val']
@@ -169,14 +170,14 @@ class VarType(object):
 
 class VarTypeBuilder(object):
 
-    lp_model:'LpModelBuilder'
-    var_type_names_no_space:np.array
+    lp_model:'lp_model.LpModelBuilder'
+    var_type_names_no_space:Sequence[str]
 
-    def __init__(self, lp_model:'LpModelBuilder') -> None:
+    def __init__(self, lp_model:'lp_model.LpModelBuilder') -> None:
         self.lp_model = lp_model
         self.var_type_names_no_space = None
 
-    def __dir__(self) -> np.array:
+    def __dir__(self) -> Sequence[str]:
         if self.var_type_names_no_space is None:
             self.var_type_names_no_space = np.char.replace(self.lp_model._lp_model["var_type_names"], ' ', '_')
         return np.append(self.var_type_names_no_space, super().__dir__())
@@ -195,5 +196,5 @@ class VarTypeBuilder(object):
             id = item
         return VarType(self.lp_model, id)
 
-    def get_names(self) -> List[str]:
+    def get_names(self) -> Sequence[str]:
         return self.lp_model._lp_model['var_type_names']

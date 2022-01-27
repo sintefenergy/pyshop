@@ -1,13 +1,13 @@
-from __future__ import annotations 
-from typing import List, Union
+from typing import List, Sequence, Union
 import numpy as np
+from . import lp_model
 
 class IndexType(object):
 
-    lp_model:'LpModelBuilder'
+    lp_model:'lp_model.LpModelBuilder'
     id:int
 
-    def __init__(self, lp_model:'LpModelBuilder', id:int) -> None:
+    def __init__(self, lp_model:'lp_model.LpModelBuilder', id:int) -> None:
         self.lp_model = lp_model
         self.id = id
 
@@ -26,14 +26,14 @@ class IndexType(object):
 
 class IndexTypeBuilder(object):
 
-    lp_model:'LpModelBuilder'
-    index_type_names_no_space:np.array
+    lp_model:'lp_model.LpModelBuilder'
+    index_type_names_no_space:Sequence[str]
 
-    def __init__(self, lp_model:'LpModelBuilder') -> None:
+    def __init__(self, lp_model:'lp_model.LpModelBuilder') -> None:
         self.lp_model = lp_model
         self.index_type_names_no_space = None
 
-    def __dir__(self) -> np.array:
+    def __dir__(self) -> Sequence[str]:
         if self.index_type_names_no_space is None:
             self.index_type_names_no_space = np.char.replace(self.get_names(), ' ', '_')
         return np.append(self.index_type_names_no_space, super().__dir__())
@@ -52,5 +52,5 @@ class IndexTypeBuilder(object):
             id = item
         return IndexType(self.lp_model, id)
 
-    def get_names(self) -> List[str]:
+    def get_names(self) -> Sequence[str]:
         return self.lp_model._lp_model['index_type_names']

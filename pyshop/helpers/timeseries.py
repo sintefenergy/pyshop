@@ -1,4 +1,5 @@
-from typing import Dict, Union, List
+from typing import Dict, Sequence, Union
+from .typing_annotations import DataFrameOrSeries
 import pandas as pd
 import numpy as np
 
@@ -6,7 +7,7 @@ def create_constant_time_series(value:Union[int,float], start:pd.Timestamp) -> p
     return pd.Series([value], index=[start])
 
 
-def remove_consecutive_duplicates(df:Union[pd.DataFrame,pd.Series]) -> Union[pd.DataFrame,pd.Series]:
+def remove_consecutive_duplicates(df:DataFrameOrSeries) -> DataFrameOrSeries:
     """
     Compress timeseries by only keeping the first row of consecutive duplicates. This is done by comparing a copied
     DataFrame/Series that has been shifted by one, with the original, and only keeping the rows in which at least one
@@ -19,7 +20,7 @@ def remove_consecutive_duplicates(df:Union[pd.DataFrame,pd.Series]) -> Union[pd.
     return df
 
 
-def get_timestamp_indexed_series(starttime:pd.Timestamp, time_unit:str, t:Union[List,np.ndarray], y:Union[List,np.ndarray], column_name:str='data') -> Union[pd.Series,pd.DataFrame]:
+def get_timestamp_indexed_series(starttime:pd.Timestamp, time_unit:str, t:Sequence[Union[int,float]], y:Sequence[float], column_name:str='data') -> DataFrameOrSeries:
     if not isinstance(t, np.ndarray):
         t = np.fromiter(t, int)
     if not isinstance(y, np.ndarray):
@@ -49,7 +50,7 @@ def get_timestamp_indexed_series(starttime:pd.Timestamp, time_unit:str, t:Union[
     return value
 
 
-def resample_resolution(time:Dict, df:Union[pd.Series,pd.DataFrame], delta:float, time_resolution:pd.Series) -> Union[pd.Series,pd.DataFrame]:
+def resample_resolution(time:Dict, df:DataFrameOrSeries, delta:float, time_resolution:pd.Series) -> DataFrameOrSeries:
     """
     Resample timeseries when time resolution is non-constant
     """

@@ -1,14 +1,14 @@
-from __future__ import annotations 
 import json
 import os
 import sys
-from typing import Dict, List, Union, Callable
+from typing import Dict, List, Optional, Callable
 import pandas as pd
 import numpy as np
 import requests
 
 from .helpers.commands import get_commands_from_file
 from .helpers.time import get_shop_timestring
+from .helpers.typing_annotations import CommandOptions, CommandValues, DataFrameOrSeries, Message, ShopApi
 from .shopcore.model_builder import ModelBuilderType
 from .shopcore.command_builder import CommandBuilder, get_derived_command_key
 from .shopcore.shop_api import get_time_resolution
@@ -26,7 +26,7 @@ class ShopSession(object):
     _host:str
     _port:int
     _auth_headers:Dict[str,str]
-    shop_api:Union[ShopRestNative,shop_pybind.ShopCore]
+    shop_api:ShopApi
     model:ModelBuilderType
     lp_model:LpModelBuilder
     _commands:Dict[str,str]
@@ -93,17 +93,17 @@ class ShopSession(object):
         self.lp_model = LpModelBuilder(self)
         self._commands = {x.replace(' ', '_'): x for x in self.shop_api.GetCommandTypesInSystem()}
         self._all_messages = []
-        self._command = None
+        self._command = None        
 
     def __dir__(self) -> List[str]:
         return list(self._commands.keys()) + [x for x in super().__dir__() if x[0] != '_' 
                                               and x not in self._commands.keys()]
 
-    def __getattr__(self, command:str) -> Callable[[Union[str,List[str]],Union[str,int,float,List[Union[str,int,float]]]],bool]:
+    def __getattr__(self, command:str) -> Callable[[CommandOptions,CommandValues],bool]:
         self._command = command.lower()
         return self._execute_command
 
-    def _execute_command(self, options:Union[str,List[str]], values:Union[str,int,float,List[Union[str,int,float]]]) -> bool:
+    def _execute_command(self, options:CommandOptions, values:CommandValues) -> bool:
         self._command = get_derived_command_key(self._command, self._commands)
         if self._command not in self._commands:
             raise ValueError(f'Unknown command: "{self._command.replace("_", " ")}"')
@@ -114,14 +114,13 @@ class ShopSession(object):
         options = map(str, options)
         options = filter(lambda x: x, options)
         values = map(str, values)
-        values = filter(lambda x: x, values)
+        values = filter(lambda x: x, values)        
         return self.shop_api.ExecuteCommand(self._commands[self._command], list(options), list(values))
 
-    def set_time_resolution(self, starttime:pd.Timestamp, endtime:pd.Timestamp, timeunit:str, timeresolution:Union[pd.Series,pd.DataFrame]=None):
+    def set_time_resolution(self, starttime:pd.Timestamp, endtime:pd.Timestamp, timeunit:str, timeresolution:Optional[DataFrameOrSeries]=None) -> None:
         # Reformat timestamps to format expected by Shop
         start_string = get_shop_timestring(starttime)
         end_string = get_shop_timestring(endtime)
-
         # Handle time resolution
         # Constant
         if not isinstance(timeresolution, pd.DataFrame) and not isinstance(timeresolution, pd.Series):
@@ -152,7 +151,7 @@ class ShopSession(object):
         # Get time resolution
         return get_time_resolution(self.shop_api)
 
-    def get_messages(self, all_messages:bool=False) -> Union[Dict[str,str], List[Dict[str,str]]]:
+    def get_messages(self, all_messages:bool=False) -> Message:
         # Get all new messages from the buffer as a dict.
         messages = self.shop_api.GetMessages()
         messages = json.loads(messages)

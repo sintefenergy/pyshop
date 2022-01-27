@@ -1,5 +1,5 @@
-from __future__ import annotations 
 from typing import Any, Callable, Dict
+from .. import shop_runner 
 import requests
 import json
 import numpy as np
@@ -15,11 +15,11 @@ class NumpyArrayEncoder(json.JSONEncoder):
 
 class ShopRestNative(object):
     
-    _session:ShopSession
+    _session:'shop_runner.ShopSession'
     commands:Dict
 
-    def __init__(self, shop_session:ShopSession) -> None:
-        self._session = shop_session
+    def __init__(self, shop_session:'shop_runner.ShopSession') -> None:
+        self._session = shop_session        
         self.commands = requests.get(
                 f'http://{shop_session._host}:{shop_session._port}/internal',
                 headers={**shop_session._auth_headers, "session-id": str(shop_session._id)}
@@ -32,7 +32,7 @@ class ShopRestNative(object):
     def __getattr__(self, name:str) -> Callable:
         return self._generate_command_func(self._session, name)
 
-    def _generate_command_func(self, shop_session:ShopSession, name:str) -> Callable:
+    def _generate_command_func(self, shop_session:'shop_runner.ShopSession', name:str) -> Callable:
         def command_func(*args, **kwargs):
             return requests.post(f'http://{shop_session._host}:{shop_session._port}/internal/{name}',
                                 headers={**shop_session._auth_headers, "session-id": str(shop_session._id)},

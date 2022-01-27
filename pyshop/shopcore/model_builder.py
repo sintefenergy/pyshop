@@ -3,6 +3,7 @@ import webbrowser
 from graphviz import Digraph
 import pandas as pd
 
+from ..helpers.typing_annotations import ShopApi
 from ..shopcore.shop_api import get_attribute_value, get_xyt_attribute, get_attribute_info, \
     set_attribute, get_object_info
 
@@ -14,11 +15,11 @@ def is_private_attr(attr:str) -> bool:
 
 class ModelBuilderType(object):
 
-    _shop_api:'shop_pybind.ShopCore'
+    _shop_api:ShopApi
     _all_types:List[str]
     _types:Dict[str,'ModelBuilderObject']
 
-    def __init__(self, shop_api:'shop_pybind.ShopCore') -> None:
+    def __init__(self, shop_api:ShopApi) -> None:
         self._shop_api = shop_api
         self._all_types = [object_type for object_type in shop_api.GetObjectTypeNames()
                            if shop_api.GetObjectInfo(object_type, 'isInput')]
@@ -129,13 +130,13 @@ class ModelBuilderObjectIterator(object):
 
 class ModelBuilderObject(object):
 
-    _shop_api:'shop_pybind.ShopCore'
+    _shop_api:ShopApi
     _parent:'ModelBuilderType'
     _type:str
     _names:List[str]
     attributes:Dict[str,'AttributeBuilderObject']
 
-    def __init__(self, shop_api:'shop_pybind.ShopCore', parent:'ModelBuilderType', object_type:str, object_names:List[str]) -> None:
+    def __init__(self, shop_api:ShopApi, parent:'ModelBuilderType', object_type:str, object_names:List[str]) -> None:
         self._shop_api = shop_api
         self._parent = parent
         self._type = object_type
@@ -178,16 +179,17 @@ class ModelBuilderObject(object):
 
     def __iter__(self) -> ModelBuilderObjectIterator:
         return ModelBuilderObjectIterator(self)
+        
 class AttributeBuilderObject(object):
 
-    _shop_api:'shop_pybind.ShopCore'
+    _shop_api:ShopApi
     _type:str
     _name:str
     _attr_names:List[str]
     _attr_types:List[str]
     datatype_dict:Dict[str,str]
 
-    def __init__(self, shop_api:'shop_pybind.ShopCore', object_type:str, object_name:str) -> None:
+    def __init__(self, shop_api:ShopApi, object_type:str, object_name:str) -> None:
         self._shop_api = shop_api
         self._type = object_type
         self._name = object_name
@@ -323,13 +325,13 @@ class AttributeBuilderObject(object):
 
 class AttributeObject(object):
 
-    _shop_api:'shop_pybind.ShopCore'
+    _shop_api:ShopApi
     _type:str
     _name:str
     _attr_name:str
     _attr_datatype:str
 
-    def __init__(self, shop_api:'shop_pybind.ShopCore', object_type:str, name:str, attr_name:str, attr_datatype:str) -> None:
+    def __init__(self, shop_api:ShopApi, object_type:str, name:str, attr_name:str, attr_datatype:str) -> None:
         self._shop_api = shop_api
         self._type = object_type
         self._name = name
@@ -395,12 +397,12 @@ class AttributeObject(object):
 
 class ConnectToObjectType(object):
 
-    _shop_api:'shop_pybind.ShopCore'
+    _shop_api:ShopApi
     _from_type:str
     _from_name:str
     _connection_type:str
 
-    def __init__(self, shop_api:'shop_pybind.ShopCore', from_type:str, from_name:str, connection_type:str):
+    def __init__(self, shop_api:ShopApi, from_type:str, from_name:str, connection_type:str):
         self._shop_api = shop_api
         self._from_type = from_type
         self._from_name = from_name
@@ -441,14 +443,14 @@ class ConnectToObjectType(object):
 
 class ConnectToObject(object):
 
-    _shop_api:'shop_pybind.ShopCore'
+    _shop_api:ShopApi
     _type:str
     _from_type:str
     _from_name:str
     _connection_type:str
     _names:List[str]
 
-    def __init__(self, shop_api:'shop_pybind.ShopCore', from_type:str, from_name:str, connection_type:str, object_type:str) -> None:
+    def __init__(self, shop_api:ShopApi, from_type:str, from_name:str, connection_type:str, object_type:str) -> None:
         # print('init connect to obj from: '+ from_type + ' ' + from_name + ' ' + type)
         self._shop_api = shop_api
         self._type = object_type
@@ -474,14 +476,14 @@ class ConnectToObject(object):
 
 class Connection(object):
 
-    _shop_api:'shop_pybind.ShopCore'
+    _shop_api:ShopApi
     _from_type:str
     _from_name:str
     _connection_type:str
     _to_name:str
     _to_type:str
 
-    def __init__(self, shop_api:'shop_pybind.ShopCore', from_type:str, from_name:str, connection_type:str, to_type:str, to_name:str) -> None:
+    def __init__(self, shop_api:ShopApi, from_type:str, from_name:str, connection_type:str, to_type:str, to_name:str) -> None:
         self._shop_api = shop_api
         self._from_type = from_type
         self._from_name = from_name

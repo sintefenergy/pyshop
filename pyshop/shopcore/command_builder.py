@@ -1,17 +1,18 @@
-from typing import Dict, List, Union
+from typing import Dict, List
+from ..helpers.typing_annotations import CommandOptions, CommandValues, ShopApi
 
 class OptionBuilder(object):
 
-    _shop_api:'shop_pybind.ShopCore'
+    _shop_api:ShopApi
     _commands:Dict[str,str]
     _command:str
 
-    def __init__(self, shop_api:'shop_pybind.ShopCore', commands:Dict[str,str], command:str) -> None:
+    def __init__(self, shop_api:ShopApi, commands:Dict[str,str], command:str) -> None:
         self._shop_api = shop_api
         self._commands = commands
         self._command = command
 
-    def set(self, options:Union[str,List[str]], values:Union[float,str,List[float],List[str]]) -> bool:
+    def set(self, options:CommandOptions, values:CommandValues) -> bool:
         self._command = get_derived_command_key(self._command, self._commands)
         if self._command not in self._commands:
             raise ValueError(f'Unknown command: "{self._command.replace("_", " ")}"')
@@ -27,10 +28,10 @@ class OptionBuilder(object):
 
 class CommandBuilder(object):
 
-    _shop_api:'shop_pybind.ShopCore'
+    _shop_api:ShopApi
     _commands:Dict[str,str]
 
-    def __init__(self, shop_api:'shop_pybind.ShopCore') -> None:
+    def __init__(self, shop_api:ShopApi) -> None:
         self._shop_api = shop_api
         self._commands = {x.replace(' ', '_'): x for x in shop_api.GetCommandTypesInSystem()}
 

@@ -1,12 +1,13 @@
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Optional, Sequence, Union
 import numpy as np
+from . import lp_model
 
 class Row(object):
 
-    lp_model:'LpModelBuilder'
+    lp_model:'lp_model.LpModelBuilder'
     id:int
 
-    def __init__(self, lp_model:'LpModelBuilder', row_id: int) -> None:
+    def __init__(self, lp_model:'lp_model.LpModelBuilder', row_id: int) -> None:
         self.lp_model = lp_model
         self.id = row_id
 
@@ -39,7 +40,7 @@ class Row(object):
         else:
             return None
 
-    def __dir__(self) -> np.array:
+    def __dir__(self) -> Sequence[str]:
         return np.append(
             ['id', 'type_id', 'type_name', 'index_type_ids', 'index_type_names',
             'index_values', 'index_descriptions', 'vars', 'rhs', 'sense'],
@@ -89,7 +90,7 @@ class Row(object):
         ret_str += str(self.rhs)
         return ret_str
 
-    def set_parameters(self, variables: list=[], coefficients: list=[], rhs: float=None, sense: int=None) -> int:
+    def set_parameters(self, variables: Sequence[int]=[], coefficients: Sequence[float]=[], rhs: Optional[float]=None, sense: Optional[int]=None) -> int:
         info = self.info()
         self.lp_model.shop.model.lp_model.lp_model['add_row_type'].set(info['type_id'])
         self.lp_model.shop.model.lp_model.lp_model['add_row_index'].set(info['index_values'])
@@ -106,9 +107,9 @@ class Row(object):
 
 class RowBuilder(object):
 
-    lp_model:'LpModelBuilder'
+    lp_model:'lp_model.LpModelBuilder'
 
-    def __init__(self, lp_model:'LpModelBuilder'):
+    def __init__(self, lp_model:'lp_model.LpModelBuilder'):
         self.lp_model = lp_model
 
     def __getitem__(self, item:int) -> Row:
@@ -121,12 +122,12 @@ class RowBuilder(object):
         if item == 'n_rows':
             return self.lp_model._lp_model["row_type"].size
 
-    def __dir__(self) -> np.array:
+    def __dir__(self) -> Sequence[str]:
         return np.append(
             super(RowBuilder, self).__dir__(), 'n_rows'
         )
 
-    def filter(self, row_type:int=None, index_values:List[int]=[]) -> List[int]:
+    def filter(self, row_type:Optional[int]=None, index_values:Sequence[int]=[]) -> List[int]:
         result = []
         for (row_id, row_t) in enumerate(self.lp_model._lp_model['row_type']):
             if row_type is None or row_type == row_t:
@@ -144,7 +145,7 @@ class RowBuilder(object):
                         result.append(row_id)
         return result
 
-    def format(self, row_id:List[int]=[]) -> str:
+    def format(self, row_id:Sequence[int]=[]) -> str:
         if len(row_id) == 0:
             row_id = range(self.n_rows)
         ret_str = ''
@@ -152,7 +153,7 @@ class RowBuilder(object):
             ret_str += Row(self.lp_model, r).format() + '\n'
         return ret_str
 
-    def add(self, row_type: int, row_index: list, variables: list=[], coefficients: list=[], rhs: float=None, sense: int=None) -> int:
+    def add(self, row_type: int, row_index: Sequence[int], variables: Sequence[int]=[], coefficients: Sequence[float]=[], rhs: Optional[float]=None, sense: Optional[int]=None) -> int:
         row_id = self.filter(row_type=row_type, index_values=row_index)
         self.lp_model.shop.model.lp_model.lp_model['add_row_type'].set(row_type)
         self.lp_model.shop.model.lp_model.lp_model['add_row_index'].set(row_index)
@@ -170,10 +171,10 @@ class RowBuilder(object):
 
 class RowType(object):
 
-    lp_model:'LpModelBuilder'
+    lp_model:'lp_model.LpModelBuilder'
     id:int
 
-    def __init__(self, lp_model:'LpModelBuilder', id:int) -> None:
+    def __init__(self, lp_model:'lp_model.LpModelBuilder', id:int) -> None:
         self.lp_model = lp_model
         self.id = id
 
@@ -189,10 +190,10 @@ class RowType(object):
             return self.lp_model.index_type.get_names()[index_type]
             # return self.lp_model.get_index_types()[index_type]
     
-    def __dir__(self) -> List[str]:
+    def __dir__(self) -> Sequence[str]:
         return ['id', 'name', 'index_types', 'index_type_names']
 
-    def get_index_types(self) -> List[int]:
+    def get_index_types(self) -> Sequence[int]:
         index_type_beg = self.lp_model._lp_model['row_type_index_type_beg']
         index_type_cnt = self.lp_model._lp_model['row_type_index_type_cnt']
         index_type_val = self.lp_model._lp_model['row_type_index_type_val']
@@ -200,14 +201,14 @@ class RowType(object):
 
 class RowTypeBuilder(object):
 
-    lp_model:'LpModelBuilder'
-    row_type_names_no_space:np.array
+    lp_model:'lp_model.LpModelBuilder'
+    row_type_names_no_space:Sequence[str]
 
-    def __init__(self, lp_model:'LpModelBuilder') -> None:
+    def __init__(self, lp_model:'lp_model.LpModelBuilder') -> None:
         self.lp_model = lp_model
         self.row_type_names_no_space = None
 
-    def __dir__(self) -> np.array:
+    def __dir__(self) -> Sequence[str]:
         if self.row_type_names_no_space is None:
             self.row_type_names_no_space = np.char.replace(self.lp_model._lp_model['row_type_names'], ' ', '_')
         return np.append(self.row_type_names_no_space, super().__dir__())
@@ -226,10 +227,10 @@ class RowTypeBuilder(object):
             id = item
         return RowType(self.lp_model, id)
 
-    def get_names(self) -> List[str]:
+    def get_names(self) -> Sequence[str]:
         return self.lp_model._lp_model['row_type_names']
 
-    def print(self, row_type:List[int]=[]) -> None:
+    def print(self, row_type:Sequence[int]=[]) -> None:
         if len(row_type) == 0:
             row_type = range(self.lp_model._lp_model['row_type_names'].size)
         for r in range(self.lp_model.row.n_rows):
