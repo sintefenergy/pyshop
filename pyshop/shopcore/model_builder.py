@@ -1,9 +1,9 @@
-from typing import Any, Dict, List, Union
+from typing import Callable, Dict, List, Union
 import webbrowser
 from graphviz import Digraph
 import pandas as pd
 
-from ..helpers.typing_annotations import ShopApi
+from ..helpers.typing_annotations import ShopApi, ShopDatatypes
 from ..shopcore.shop_api import get_attribute_value, get_xyt_attribute, get_attribute_info, \
     set_attribute, get_object_info
 
@@ -338,7 +338,7 @@ class AttributeObject(object):
         self._attr_name = attr_name
         self._attr_datatype = attr_datatype
 
-    def __getattr__(self, call:str) -> Any:
+    def __getattr__(self, call:str) -> Callable[[],ShopDatatypes]:
         # Recursion guard
         if is_private_attr(call):
             return
@@ -354,10 +354,10 @@ class AttributeObject(object):
     def __dir__(self) -> List[str]:
         return [x for x in super().__dir__() if x[0] != '_'] + ['get']
 
-    def __getitem__(self, item:str) -> Any:
+    def __getitem__(self, item:str) -> Callable[[],ShopDatatypes]:
         return self.__getattr__(item)
 
-    def _get(self) -> Any:
+    def _get(self) -> ShopDatatypes:
         return get_attribute_value(self._shop_api, self._name, self._type, self._attr_name, self._attr_datatype)
 
     def _get_xyt(self, start_time:pd.Timestamp=None, end_time:pd.Timestamp=None) -> Union[List[pd.Series], List[Dict]]:
@@ -366,7 +366,7 @@ class AttributeObject(object):
         else:
             return get_attribute_value(self._shop_api, self._name, self._type, self._attr_name, self._attr_datatype)
 
-    def set(self, value:Any) -> None:
+    def set(self, value:ShopDatatypes) -> None:
         set_attribute(self._shop_api, self._name, self._type, self._attr_name, self._attr_datatype, value)
 
     def help(self) -> None:
