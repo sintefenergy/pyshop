@@ -1,3 +1,4 @@
+from typing import Any, Dict, List
 import numpy as np
 
 from .row import RowBuilder, RowTypeBuilder
@@ -6,7 +7,15 @@ from .index import IndexTypeBuilder
 
 class LpModelBuilder(object):
 
-    def __init__(self, shop):
+    shop:'ShopSession'
+    _lp_model:Dict[str,Any]
+    _lp_model_attributes:Dict[str,Any]
+    var:VarBuilder
+    var_type:VarTypeBuilder
+    row:RowTypeBuilder
+    index_type:IndexTypeBuilder
+
+    def __init__(self, shop:'ShopSession') -> None:
         self.shop = shop
         self._lp_model = {}
         self._lp_model_attributes = {
@@ -49,34 +58,34 @@ class LpModelBuilder(object):
         self.row_type = RowTypeBuilder(self)
         self.index_type = IndexTypeBuilder(self)
 
-    def build(self):
+    def build(self) -> None:
         self.shop.model.lp_model.lp_model['sim_mode'].set(1)
         self.shop.start_sim([], ['1'])
 
-    def load_model(self):
+    def load_model(self) -> None:
         self.shop.reset_lp_model([],[])
         for attr_name in self._lp_model_attributes.keys():
             self._lp_model[attr_name] = np.array(self.shop.model.lp_model.lp_model[attr_name].get())
     
-    def load_results(self):
+    def load_results(self) -> None:
         for attr_name in ["x", "dual"]:
             self._lp_model[attr_name] = np.array(self.shop.model.lp_model.lp_model[attr_name].get())
 
-    def solve(self):
+    def solve(self) -> None:
         self.shop.model.lp_model.lp_model['sim_mode'].set(2)
         self.shop.start_sim([], ['1'])
         self.shop.model.lp_model.lp_model['sim_mode'].set(0)
 
-    def build_pyomo_model(self, optimizer=None):
+    def build_pyomo_model(self, optimizer=None) -> None:
         pass # Not implemented yet
 
-    def print(self, row_types=[], var_types=[]):
+    def print(self, row_types:List[int]=[], var_types:List[int]=[]) -> None:
         print(self.row.format(row_types))
         for var_id in range(self.var.n_vars):
             if len(var_types) == 0 or self.var[var_id].type_id in var_types:
                 print(self.var[var_id].format())
     
-    def save(self, filename, row_types=[], var_types=[]):
+    def save(self, filename:str, row_types:List[int]=[], var_types:List[int]=[]) -> None:
         with open(filename, "w") as file:
             file.write(self.row.format(row_types) + '\n')
             for var_id in range(self.var.n_vars):

@@ -1,12 +1,12 @@
 import pandas as pd
 
 
-def get_shop_timestring(timestamp):
+def get_shop_timestring(timestamp:pd.Timestamp) -> str:
     # Return timestamp in format expected by Shop
     return timestamp.strftime('%Y%m%d%H%M%S')
 
 
-def get_shop_datetime(time_string, time_zone_name):
+def get_shop_datetime(time_string:str, time_zone_name:str) -> pd.Timestamp:
     time_format = '%Y%m%d%H%M%S'
     time_string = time_string[0:14]
     time_string_len = len(time_string)

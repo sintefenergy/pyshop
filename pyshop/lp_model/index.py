@@ -1,11 +1,17 @@
+from __future__ import annotations 
+from typing import List, Union
 import numpy as np
 
 class IndexType(object):
-    def __init__(self, lp_model, id):
+
+    lp_model:'LpModelBuilder'
+    id:int
+
+    def __init__(self, lp_model:'LpModelBuilder', id:int) -> None:
         self.lp_model = lp_model
         self.id = id
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr:str) -> Union[int,str]:
         if attr == 'id':
             return self.id
         elif attr == 'name':
@@ -15,23 +21,27 @@ class IndexType(object):
             id_count = self.lp_model._lp_model['index_type_desc_cnt'][self.id]
             return self.lp_model._lp_model['index_type_desc_val'][id_start:id_start+id_count]
     
-    def __dir__(self):
+    def __dir__(self) -> List[str]:
         return ['id', 'name', 'description']
 
 class IndexTypeBuilder(object):
-    def __init__(self, lp_model):
+
+    lp_model:'LpModelBuilder'
+    index_type_names_no_space:np.array
+
+    def __init__(self, lp_model:'LpModelBuilder') -> None:
         self.lp_model = lp_model
         self.index_type_names_no_space = None
 
-    def __dir__(self):
+    def __dir__(self) -> np.array:
         if self.index_type_names_no_space is None:
             self.index_type_names_no_space = np.char.replace(self.get_names(), ' ', '_')
         return np.append(self.index_type_names_no_space, super().__dir__())
 
-    def __getattr__(self, attr):
+    def __getattr__(self, attr:str) -> IndexType:
         return IndexType(self.lp_model, np.where(self.__dir__() == attr)[0][0])
 
-    def __getitem__(self, item):
+    def __getitem__(self, item:Union[int,str]) -> IndexType:
         if isinstance(item, str):
             ret = np.where(self.get_names() == item)[0]
             if ret.size > 0:
@@ -42,5 +52,5 @@ class IndexTypeBuilder(object):
             id = item
         return IndexType(self.lp_model, id)
 
-    def get_names(self):
+    def get_names(self) -> List[str]:
         return self.lp_model._lp_model['index_type_names']

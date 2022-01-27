@@ -1,7 +1,9 @@
 import re
+from typing import Dict, List, Union
 
+CommandType = Dict[str,Union[str,List[str]]]
 
-def get_commands_from_file(command_file_string):
+def get_commands_from_file(command_file_string:str) -> List[CommandType]:
     # Split file into lines
     lines = re.split('\n+|\r+', command_file_string)
     entries = []
