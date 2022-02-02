@@ -39,7 +39,7 @@ The solver specific binary is listed as cplex2010 here, but will change as new C
 
 ## 3 Environment and license file
 
-The SHOP license file, `SHOP_license.dat`, must always be located in the directory specified by the environment variable `ICC_COMMAND_PATH`. The `ICC_COMMAND_PATH` can be added as a persistent environment variable int the regulary ways, or it can be set by pyshop on a session basis. If the keyword argument `license_path` is specified when creating an instance of the ShopSession class (see step 4), the environment variable is overridden in the local environment of the executing process. If SHOP complains about not finding the license file, it is likely an issue with the `ICC_COMMAND_PATH` not being correctly specified.
+The SHOP license file, `SHOP_license.dat`, must always be located in the directory specified by the environment variable `ICC_COMMAND_PATH`. The `ICC_COMMAND_PATH` can be added as a persistent environment variable in the regular ways, or it can be set by pyshop on a session basis. If the keyword argument `license_path` is specified when creating an instance of the ShopSession class (see step 4), the environment variable is overridden in the local environment of the executing process. If SHOP complains about not finding the license file, it is likely an issue with the `ICC_COMMAND_PATH` not being correctly specified.
 
 The `ICC_COMMAND_PATH` is also the default place pyshop will look for the SHOP binaries mentioned in step 2. If the binaries are placed elsewhere, the keyword argument `solver_path` must be used when a ShopSession instance is created to ensure the correct binaries are loaded.
 
