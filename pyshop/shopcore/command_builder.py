@@ -51,9 +51,9 @@ def get_derived_command_key(original_command:str, command_dict:Dict[str,str]) ->
             if command_key == original_command:
                 return original_command
             num_matches += 1
-    if num_matches == 1:
-        return derived_command
+        
     if num_matches > 1:
         raise ValueError(f'Abbreviation matches multiple commands: "{original_command.replace("_", " ")}"')
     if num_matches == 0:
         raise ValueError(f'Unknown command: "{original_command.replace("_", " ")}"')
+    return derived_command

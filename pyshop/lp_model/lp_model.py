@@ -13,7 +13,8 @@ class LpModelBuilder(object):
     _lp_model_attributes:Dict[str,None]
     var:VarBuilder
     var_type:VarTypeBuilder
-    row:RowTypeBuilder
+    row:RowBuilder
+    row_type:RowTypeBuilder
     index_type:IndexTypeBuilder
 
     def __init__(self, shop:'shop_runner.ShopSession') -> None:

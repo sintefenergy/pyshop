@@ -3,7 +3,7 @@ import webbrowser
 from graphviz import Digraph
 import pandas as pd
 
-from ..helpers.typing_annotations import ShopApi, ShopDatatypes
+from ..helpers.typing_annotations import ShopApi, ShopDatatypes, XyType
 from ..shopcore.shop_api import get_attribute_value, get_xyt_attribute, get_attribute_info, \
     set_attribute, get_object_info
 
@@ -218,7 +218,7 @@ class AttributeBuilderObject(object):
         else:
             return dirs
 
-    def __getitem__(self, item:str) -> Union['AttributeObject',List['AttributeObject']]:
+    def __getitem__(self, item:str) -> Union['AttributeObject',List['AttributeBuilderObject']]:
         return self.__getattr__(item)
 
     def _get_generators(self) -> List['AttributeBuilderObject']:
@@ -360,7 +360,7 @@ class AttributeObject(object):
     def _get(self) -> ShopDatatypes:
         return get_attribute_value(self._shop_api, self._name, self._type, self._attr_name, self._attr_datatype)
 
-    def _get_xyt(self, start_time:pd.Timestamp=None, end_time:pd.Timestamp=None) -> Union[List[pd.Series], List[Dict]]:
+    def _get_xyt(self, start_time:pd.Timestamp=None, end_time:pd.Timestamp=None) -> List[XyType]:
         if start_time and end_time:
             return get_xyt_attribute(self._shop_api, self._name, self._type, self._attr_name, start_time, end_time)
         else:

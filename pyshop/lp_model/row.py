@@ -202,7 +202,7 @@ class RowType(object):
 class RowTypeBuilder(object):
 
     lp_model:'lp_model.LpModelBuilder'
-    row_type_names_no_space:Sequence[str]
+    row_type_names_no_space:Optional[Sequence[str]]
 
     def __init__(self, lp_model:'lp_model.LpModelBuilder') -> None:
         self.lp_model = lp_model

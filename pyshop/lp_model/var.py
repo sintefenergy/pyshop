@@ -171,7 +171,7 @@ class VarType(object):
 class VarTypeBuilder(object):
 
     lp_model:'lp_model.LpModelBuilder'
-    var_type_names_no_space:Sequence[str]
+    var_type_names_no_space:Optional[Sequence[str]]
 
     def __init__(self, lp_model:'lp_model.LpModelBuilder') -> None:
         self.lp_model = lp_model

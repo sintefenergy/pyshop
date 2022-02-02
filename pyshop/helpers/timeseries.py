@@ -40,13 +40,15 @@ def get_timestamp_indexed_series(starttime:pd.Timestamp, time_unit:str, t:Sequen
     t = np.repeat(starttime.to_datetime64(), t.size) + t * delta    
     if y.size > t.size:  # Stochastic
         value = pd.DataFrame(data=y, index=t)
+        if tz_name is not None:
+            value.index = value.index.tz_localize(tz=tz_name)     #Add the original time zone info back        
     else:
         value = pd.Series(data=y.flatten(), index=t, name=column_name)
+        if tz_name is not None:
+            value = value.tz_localize(tz=tz_name)                 #Add the original time zone info back 
+
     value[value >= 1.0e40] = np.nan
     
-    #Add the original time zone info back
-    if tz_name is not None:
-        value.index = value.index.tz_localize(tz=tz_name)
     return value
 
 

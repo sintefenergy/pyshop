@@ -30,7 +30,7 @@ class ShopSession(object):
     model:ModelBuilderType
     lp_model:LpModelBuilder
     _commands:Dict[str,str]
-    _all_messages:Dict[str,str]
+    _all_messages:List[Dict[str,str]]
     _command:str
 
     def __init__(self, license_path:str='', silent:bool=True, log_file:str='', solver_path:str='', suppress_log:bool=False, log_gets:bool=True, name:str='unnamed', id:int=1, host:str='', port:int=8000) -> None:
@@ -93,7 +93,7 @@ class ShopSession(object):
         self.lp_model = LpModelBuilder(self)
         self._commands = {x.replace(' ', '_'): x for x in self.shop_api.GetCommandTypesInSystem()}
         self._all_messages = []
-        self._command = None        
+        self._command = ""        
 
     def __dir__(self) -> List[str]:
         return list(self._commands.keys()) + [x for x in super().__dir__() if x[0] != '_' 

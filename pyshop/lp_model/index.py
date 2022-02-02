@@ -1,4 +1,4 @@
-from typing import List, Sequence, Union
+from typing import List, Optional, Sequence, Union
 import numpy as np
 from . import lp_model
 
@@ -27,7 +27,7 @@ class IndexType(object):
 class IndexTypeBuilder(object):
 
     lp_model:'lp_model.LpModelBuilder'
-    index_type_names_no_space:Sequence[str]
+    index_type_names_no_space:Optional[Sequence[str]]
 
     def __init__(self, lp_model:'lp_model.LpModelBuilder') -> None:
         self.lp_model = lp_model
