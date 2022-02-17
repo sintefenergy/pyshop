@@ -45,7 +45,7 @@ class ModelBuilderType(object):
                        for object_type, object_names in objects.items()}
 
     def build_connection_tree(self, filename='topology', write_file=False, display_units=False):
-        types = ['reservoir', 'plant', 'gate', 'junction', 'junction_gate', 'creek_intake', 'tunnel']
+        types = ['reservoir', 'plant', 'gate', 'junction', 'junction_gate', 'creek_intake', 'tunnel', 'river']
         relation_types = ['connection_standard', 'connection_spill', 'connection_bypass']
         object_types = self._shop_api.GetObjectTypesInSystem()
         object_names = self._shop_api.GetObjectNamesInSystem()
