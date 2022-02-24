@@ -32,16 +32,17 @@ Windows:
 - shop_pybind.pyd
 
 Linux:
+- libcplex2010.so
 - shop_cplex_interface.so
 - shop_pybind.so
 
-The solver specific binary is listed as cplex2010 here, but will change as new CPLEX versions become available. It is also possible to use the GUROBI and OSI solvers with SHOP. Note that the shop_cplex_interface.so also contains the CPLEX binaries in the Linux distribution, and so there is no cplex2010.so file.
+The solver specific binary is listed as cplex2010 here, but will change as new CPLEX versions become available. It is also possible to use the GUROBI and OSI solvers with SHOP. Note that the shop_cplex_interface.so used to contain the CPLEX binaries in the Linux distribution before SHOP version 14.3, and so older SHOP versions do not require the separate libcplex2010.so file.
 
 ## 3 Environment and license file
 
 The SHOP license file, `SHOP_license.dat`, must always be located in the directory specified by the environment variable `ICC_COMMAND_PATH`. The `ICC_COMMAND_PATH` can be added as a persistent environment variable in the regular ways, or it can be set by pyshop on a session basis. If the keyword argument `license_path` is specified when creating an instance of the ShopSession class (see step 4), the environment variable is overridden in the local environment of the executing process. If SHOP complains about not finding the license file, it is likely an issue with the `ICC_COMMAND_PATH` not being correctly specified.
 
-The `ICC_COMMAND_PATH` is also the default place pyshop will look for the SHOP binaries mentioned in step 2. If the binaries are placed elsewhere, the keyword argument `solver_path` must be used when a ShopSession instance is created to ensure the correct binaries are loaded.
+The `ICC_COMMAND_PATH` is also the default place pyshop will look for the SHOP binaries mentioned in step 2. If the binaries are placed elsewhere, the keyword argument `solver_path` must be used when a ShopSession instance is created to ensure the correct binaries are loaded. Note that libcplex2010.so must be placed in the '/lib' directory when running pyshop in a Linux environment.
 
 ## 4 Running SHOP
 
