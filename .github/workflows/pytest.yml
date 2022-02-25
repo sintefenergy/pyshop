@@ -4,11 +4,11 @@
 name: Run interface tests
 
 on:
+  workflow_dispatch:
   push:
-    branches: [ main ]
+    # branches: [ main ]
   pull_request:
     branches: [ main ]
-  [workflow_dispatch]
 
 jobs:
   build:
