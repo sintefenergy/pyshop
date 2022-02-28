@@ -110,7 +110,7 @@ rsv2.inflow.set(pd.DataFrame([10, 50], index=[starttime, starttime + pd.Timedelt
 rsv3.inflow.set(pd.DataFrame([0, 20], index=[starttime, starttime + pd.Timedelta(hours=1)]))
 
 for i in range(3):
-    shop.print_model('','full{}.lp'.format(str(i + 1)))
+    shop.print_model('', 'full{}.lp'.format(str(i + 1)))
     shop.start_sim('', 1)
 shop.set_code(['incremental'], [])
 shop.start_sim('', 3)
