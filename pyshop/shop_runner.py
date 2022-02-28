@@ -17,8 +17,9 @@ from .lp_model.lp_model import LpModelBuilder
 class ShopSession(object):
     # Class for handling a SHOP session through the python API.
 
-    def __init__(self, license_path='', silent=True, log_file='', solver_path='', suppress_log=False, log_gets=True, name='unnamed', id=1, host='', port=8000):
-        #Used by the SHOP rest APi 
+    def __init__(self, license_path='', silent=True, log_file='', solver_path='', suppress_log=False, log_gets=True,
+                 name='unnamed', id=1, host='', port=8000):
+        # Used by the SHOP rest API
         self._log_file = log_file
         self._name = name
         self._id = id
@@ -43,23 +44,24 @@ class ShopSession(object):
             else:
                 raise Exception(f"Could not connect to server: Status code {response.status_code}")
             self.shop_api = ShopRestNative(self)
-        
+
         else:
             # Initialize a new SHOP session
             #
             # @param license_path The path where the license file, solver and solver interface are located
             if license_path:
                 os.environ['ICC_COMMAND_PATH'] = license_path
-            
+
             if 'ICC_COMMAND_PATH' not in os.environ:
-                print("The environment variable 'ICC_COMMAND_PATH' is not set. Please use the keyword argument 'license_path' to specify the location of the SHOP license file.")
-                
-            #Insert either the solver_path or the ICC_COMMAND_PATH to sys.path to find shop_pybind.pyd and solver dlls
+                print("""The environment variable 'ICC_COMMAND_PATH' is not set.
+                    Please use the keyword argument 'license_path' to specify the location of the SHOP license file.""")
+
+            # Insert either the solver_path or the ICC_COMMAND_PATH to sys.path to find shop_pybind.pyd and solver dlls
             if solver_path:
                 solver_path = os.path.abspath(solver_path)
-                sys.path.insert(1,solver_path)
-            else:            
-                sys.path.insert(1,os.environ['ICC_COMMAND_PATH'])
+                sys.path.insert(1, solver_path)
+            else:
+                sys.path.insert(1, os.environ['ICC_COMMAND_PATH'])
 
             import shop_pybind as pb
 
@@ -69,11 +71,11 @@ class ShopSession(object):
                 self.shop_api = pb.ShopCore(silent_console, silent_log, log_file, log_gets)
             else:
                 self.shop_api = pb.ShopCore(silent_console, silent_log)
-            
-            #Override where SHOP will look for solver dlls
+
+            # Override where SHOP will look for solver dlls
             if solver_path:
                 self.shop_api.OverrideDllPath(solver_path)
-            
+
         self.model = ModelBuilderType(self.shop_api)
         self.lp_model = LpModelBuilder(self)
         self._commands = {x.replace(' ', '_'): x for x in self.shop_api.GetCommandTypesInSystem()}
@@ -81,7 +83,7 @@ class ShopSession(object):
         self._command = None
 
     def __dir__(self):
-        return list(self._commands.keys()) + [x for x in super().__dir__() if x[0] != '_' 
+        return list(self._commands.keys()) + [x for x in super().__dir__() if x[0] != '_'
                                               and x not in self._commands.keys()]
 
     def __getattr__(self, command):
@@ -226,3 +228,4 @@ class ShopSession(object):
     def get_shop_version(self):
         version_string = self.shop_api.GetVersionString()
         return version_string.split()[0]
+        

@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class IndexType(object):
     def __init__(self, lp_model, id):
         self.lp_model = lp_model
@@ -17,6 +18,7 @@ class IndexType(object):
     
     def __dir__(self):
         return ['id', 'name', 'description']
+
 
 class IndexTypeBuilder(object):
     def __init__(self, lp_model):

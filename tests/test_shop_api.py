@@ -2,6 +2,7 @@ import pandas as pd
 
 from pyshop.shopcore.shop_api import get_attribute_value
 
+
 class ShopApiMock:
     x_curve = [0, 1]
     y_curve = [0.0, 1.1]
@@ -45,6 +46,7 @@ class ShopApiMock:
                 return command, list(args)
         return dummy_func
 
+
 class TestGetAttribute:
     shop_api = ShopApiMock()
 
@@ -61,7 +63,7 @@ class TestGetAttribute:
 
     def test_get_xy_array(self):
         value = get_attribute_value(self.shop_api, 'obj_name', 'obj_type', 'attr_name', 'xy_array')
-        for i,n in enumerate(self.shop_api.array_n_points):
+        for i, n in enumerate(self.shop_api.array_n_points):
             n_sum = sum(self.shop_api.array_n_points[0:i])
             assert (value[i].index == self.shop_api.array_x_curve[n_sum:n_sum+n]).all()
             assert (value[i].values == self.shop_api.array_y_curve[n_sum:n_sum+n]).all()

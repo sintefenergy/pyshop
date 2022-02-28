@@ -1,5 +1,6 @@
 import numpy as np
 
+
 class Row(object):
     def __init__(self, lp_model, row_id: int):
         self.lp_model = lp_model
@@ -22,13 +23,13 @@ class Row(object):
         elif attr == 'index_descriptions':
             index_types = self.lp_model.row_type[type_id].get_index_types()
             index_values = self.get_index_values()
-            return [self.lp_model.index_type[t].descrition[v] for (t,v) in zip(index_types, index_values)]
+            return [self.lp_model.index_type[t].descrition[v] for (t, v) in zip(index_types, index_values)]
         elif attr == 'vars':
             lp_model = self.lp_model._lp_model
             ij = lp_model['Irow'] == self.id
             var_ids = lp_model['Jcol'][ij]
             var_coeffs = lp_model['AA'][ij]
-            return [(i,c) for (i,c) in zip(var_ids, var_coeffs)]
+            return [(i, c) for (i, c) in zip(var_ids, var_coeffs)]
         elif attr in self.__dir__():
             return self.lp_model._lp_model[attr][self.id]
         else:
@@ -37,10 +38,10 @@ class Row(object):
     def __dir__(self):
         return np.append(
             ['id', 'type_id', 'type_name', 'index_type_ids', 'index_type_names',
-            'index_values', 'index_descriptions', 'vars', 'rhs', 'sense'],
+                'index_values', 'index_descriptions', 'vars', 'rhs', 'sense'],
             super(Row, self).__dir__()
         )
-    
+
     def info(self):
         type_id = self.lp_model._lp_model['row_type'][self.id]
         index_type_ids = self.lp_model.row_type[type_id].get_index_types()
@@ -57,8 +58,8 @@ class Row(object):
             'index_type_ids': index_type_ids,
             'index_type_names': self.lp_model.index_type.get_names()[index_type_ids],
             'index_values': index_values,
-            'index_descriptions': [self.lp_model.index_type[t].description[v] for (t,v) in zip(index_type_ids, index_values)],
-            'vars': [(i,c) for (i,c) in zip(var_ids, var_coeffs)],
+            'index_descriptions': [self.lp_model.index_type[t].description[v] for (t, v) in zip(index_type_ids, index_values)],
+            'vars': [(i, c) for (i, c) in zip(var_ids, var_coeffs)],
             'rhs': rhs,
             'sense': sense
         }
@@ -84,20 +85,22 @@ class Row(object):
         ret_str += str(self.rhs)
         return ret_str
 
-    def set_parameters(self, variables: list=[], coefficients: list=[], rhs: float=None, sense: int=None):
+    def set_parameters(self, variables: list = [], coefficients: list = [], rhs: float = None, sense: int = None):
         info = self.info()
         self.lp_model.shop.model.lp_model.lp_model['add_row_type'].set(info['type_id'])
         self.lp_model.shop.model.lp_model.lp_model['add_row_index'].set(info['index_values'])
         self.lp_model.shop.model.lp_model.lp_model['add_row_variables'].set(variables)
         self.lp_model.shop.model.lp_model.lp_model['add_row_coeff'].set(coefficients)
-        self.lp_model.shop.model.lp_model.lp_model['add_row_rhs'].set(info['rhs'] if rhs == None else rhs)
-        self.lp_model.shop.model.lp_model.lp_model['add_row_sense'].set(info['sense'] if sense == None else sense)
-        self.lp_model.shop.set_lp_row([],[])
+        self.lp_model.shop.model.lp_model.lp_model['add_row_rhs'].set(info['rhs'] if rhs is None else rhs)
+        self.lp_model.shop.model.lp_model.lp_model['add_row_sense'].set(info['sense'] if sense is None else sense)
+        self.lp_model.shop.set_lp_row([], [])
         return self.lp_model.shop.model.lp_model.lp_model['add_row_last'].get()
 
     def get_index_values(self):
         lp_model = self.lp_model._lp_model
-        return lp_model['row_index_val'][lp_model['row_index_beg'][self.id]:lp_model['row_index_beg'][self.id] + lp_model['row_index_cnt'][self.id]]
+        return lp_model['row_index_val'][lp_model['row_index_beg'][self.id]:lp_model['row_index_beg'][self.id] +
+            lp_model['row_index_cnt'][self.id]]
+
 
 class RowBuilder(object):
     def __init__(self, lp_model):
@@ -128,7 +131,7 @@ class RowBuilder(object):
                 else:
                     index_val = self.lp_model.row[row_id].get_index_values()
                     success = True
-                    for (i,r) in zip(index_val, index_values):
+                    for (i, r) in zip(index_val, index_values):
                         if i != r and r > -1:
                             success = False
                             break
@@ -144,7 +147,7 @@ class RowBuilder(object):
             ret_str += Row(self.lp_model, r).format() + '\n'
         return ret_str
 
-    def add(self, row_type: int, row_index: list, variables: list=[], coefficients: list=[], rhs: float=None, sense: int=None):
+    def add(self, row_type: int, row_index: list, variables: list = [], coefficients: list = [], rhs: float = None, sense: int = None):
         row_id = self.filter(row_type=row_type, index_values=row_index)
         self.lp_model.shop.model.lp_model.lp_model['add_row_type'].set(row_type)
         self.lp_model.shop.model.lp_model.lp_model['add_row_index'].set(row_index)
@@ -152,13 +155,13 @@ class RowBuilder(object):
         self.lp_model.shop.model.lp_model.lp_model['add_row_coeff'].set(coefficients)
         if len(row_id) > 0:
             info = self[row_id].info()
-            self.lp_model.shop.model.lp_model.lp_model['add_row_rhs'].set(info['rhs'] if rhs == None else rhs)
-            self.lp_model.shop.model.lp_model.lp_model['add_row_sense'].set(info['sense'] if sense == None else sense)
+            self.lp_model.shop.model.lp_model.lp_model['add_row_rhs'].set(info['rhs'] if rhs is None else rhs)
+            self.lp_model.shop.model.lp_model.lp_model['add_row_sense'].set(info['sense'] if sense is None else sense)
         else:
-            self.lp_model.shop.model.lp_model.lp_model['add_row_rhs'].set(0.0 if rhs == None else rhs)
-            self.lp_model.shop.model.lp_model.lp_model['add_row_sense'].set(0 if sense == None else sense)
-        
+            self.lp_model.shop.model.lp_model.lp_model['add_row_rhs'].set(0.0 if rhs is None else rhs)
+            self.lp_model.shop.model.lp_model.lp_model['add_row_sense'].set(0 if sense is None else sense)
         return self.lp_model.shop.model.lp_model.lp_model['add_row_last'].get()
+
 
 class RowType(object):
     def __init__(self, lp_model, id):
@@ -176,7 +179,7 @@ class RowType(object):
             index_type = self.get_index_types()
             return self.lp_model.index_type.get_names()[index_type]
             # return self.lp_model.get_index_types()[index_type]
-    
+
     def __dir__(self):
         return ['id', 'name', 'index_types', 'index_type_names']
 
