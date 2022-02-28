@@ -1,6 +1,6 @@
 import pandas as pd
 
-from pyshop.shopcore.shop_api import get_attribute_value
+from pyshop.shopcore.shop_api import get_attribute_value, set_attribute
 
 
 class ShopApiMock:
@@ -19,9 +19,12 @@ class ShopApiMock:
         'GetTimeZone': ''
     }
 
-    def __getattr__(self, command):
+    def __getattr__(self, command: str):
         def dummy_func(*args):
-            return self.mock_dict[command]
+            if command.startswith('Get'):
+                return self.mock_dict[command]
+            elif command.startswith('Set'):
+                self.mock_dict[command] = args
         return dummy_func
 
     def __getitem__(self, command):
@@ -51,3 +54,17 @@ class TestGetAttribute:
             starttime = pd.Timestamp(self.shop_api['GetTxySeriesStartTime'])
             assert (value.index == [starttime + pd.Timedelta(hours=t) for t in self.shop_api['GetTxySeriesT']]).all()
             assert (value.values == self.shop_api['GetTxySeriesY']).all()
+
+
+class TestSetAttribute:
+    shop_api = ShopApiMock()
+
+    def test_set_xy(self):
+        xy_val = pd.Series(
+            self.shop_api['GetXyCurveY'], index=self.shop_api['GetXyCurveX'], name=self.shop_api['GetXyCurveReference']
+        )
+        set_attribute(self.shop_api, 'obj_name', 'obj_type', 'attr_name', 'xy', xy_val)
+        res = self.shop_api['SetXyCurve']
+        assert res[3] == self.shop_api['GetXyCurveReference']
+        assert (res[4] == self.shop_api['GetXyCurveX']).all()
+        assert (res[5] == self.shop_api['GetXyCurveY']).all()
