@@ -89,22 +89,25 @@ class ModelBuilderType(object):
         for connection in connections:
             input_type = object_types[connection[0]]
             output_type = object_types[connection[1]]
-            
-            # Don't add generators and pumps to the graph if display_units is False 
+
+            # Don't add generators and pumps to the graph if display_units is False
             if input_type in ["generator", "pump"] or output_type in ["generator", "pump"]:
-                if not display_units:                      
+                if not display_units:
                     continue
             elif input_type not in types or output_type not in types:
-                continue            
+                continue
 
             if (input_type == 'gate' or output_type == 'gate') and connection[2] != 'connection_standard':
                 dot.attr('edge', style='dashed')
             else:
                 dot.attr('edge', style='solid', arrowtail='none', arrowhead='none')
 
-            dot.edge('{0}_{1}'.format(input_type, object_names[connection[0]]), '{0}_{1}'.format(output_type, object_names[connection[1]]))
+            dot.edge(
+                '{0}_{1}'.format(input_type, object_names[connection[0]]),
+                '{0}_{1}'.format(output_type, object_names[connection[1]])
+            )
         for s in subgraphs:
-            dot.subgraph(s)          
+            dot.subgraph(s)
         if write_file:
             dot.render(filename + '.gv', view=True)
         return dot
@@ -204,9 +207,9 @@ class AttributeBuilderObject(object):
 
     def _get_generators(self):
         object_names = self._shop_api.GetObjectNamesInSystem()
-        object_types = self._shop_api.GetObjectTypesInSystem()        
-        connected_indices = self._shop_api.GetRelations(self._type, self._name,'connection_standard')
-        gen_names = [object_names[i] for i in connected_indices if object_types[i]=='generator']
+        object_types = self._shop_api.GetObjectTypesInSystem()
+        connected_indices = self._shop_api.GetRelations(self._type, self._name, 'connection_standard')
+        gen_names = [object_names[i] for i in connected_indices if object_types[i] == 'generator']
         gen_objects = []
         for gen_name in gen_names:
             new_gen = AttributeBuilderObject(self._shop_api, 'generator', gen_name)

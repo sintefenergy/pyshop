@@ -72,7 +72,8 @@ class Var(object):
 
     def get_index_values(self):
         lp_model = self.lp_model._lp_model
-        return lp_model['var_index_val'][lp_model['var_index_beg'][self.id]:lp_model['var_index_beg'][self.id] + lp_model['var_index_cnt'][self.id]]
+        return lp_model['var_index_val'][lp_model['var_index_beg'][self.id]:
+            lp_model['var_index_beg'][self.id] + lp_model['var_index_cnt'][self.id]]
 
 
 class VarBuilder(object):
@@ -113,7 +114,8 @@ class VarBuilder(object):
                         result.append(var_id)
         return result
 
-    def add(self, variable_type: int, variable_index: list, ub: float = None, lb: float = None, cc: float = None, bin: int = None):
+    def add(self, variable_type: int, variable_index: list,
+            ub: float = None, lb: float = None, cc: float = None, bin: int = None):
         var_id = self.filter(var_type=variable_type, index_values=variable_index)
         self.lp_model.shop.model.lp_model.lp_model['add_var_type'].set(variable_type)
         self.lp_model.shop.model.lp_model.lp_model['add_var_index'].set(variable_index)

@@ -3,6 +3,7 @@ import json
 import numpy as np
 import pandas as pd
 
+
 class NumpyArrayEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, np.ndarray):
@@ -10,6 +11,7 @@ class NumpyArrayEncoder(json.JSONEncoder):
         elif isinstance(obj, pd.Index):
             return obj.tolist()
         return json.JSONEncoder.default(self, obj)
+
 
 class ShopRestNative(object):
     def __init__(self, shop_session):
@@ -29,7 +31,7 @@ class ShopRestNative(object):
     def _generate_command_func(self, shop_session, name):
         def command_func(*args, **kwargs):
             return requests.post(f'http://{shop_session._host}:{shop_session._port}/internal/{name}',
-                                headers={**shop_session._auth_headers, "session-id": str(shop_session._id)},
-                                # params=dict(session=shop_session._id),
-                                data=json.dumps(dict(args=args, kwargs=kwargs), cls=NumpyArrayEncoder)).json()
+                                    headers={**shop_session._auth_headers, "session-id": str(shop_session._id)},
+                                    # params=dict(session=shop_session._id),
+                                    data=json.dumps(dict(args=args, kwargs=kwargs), cls=NumpyArrayEncoder)).json()
         return command_func

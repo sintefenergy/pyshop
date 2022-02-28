@@ -7,7 +7,7 @@ from ..helpers.timeseries import create_constant_time_series, get_timestamp_inde
 
 def get_attribute_value(shop_api, object_name, object_type, attribute_name, datatype, dataframe=True):
     value = None
-    if datatype == 'int': 
+    if datatype == 'int':
         value = shop_api.GetIntValue(object_type, object_name, attribute_name)
     elif datatype == 'int_array':
         value = list(shop_api.GetIntArray(object_type, object_name, attribute_name))
@@ -58,14 +58,14 @@ def get_attribute_value(shop_api, object_name, object_type, attribute_name, data
                     offset += n_items
     elif datatype == 'xyt':
         tz_name = get_shop_timzone_name(shop_api)
-        start = get_shop_datetime(shop_api.GetStartTime(),tz_name)
-        end = get_shop_datetime(shop_api.GetEndTime(),tz_name)
+        start = get_shop_datetime(shop_api.GetStartTime(), tz_name)
+        end = get_shop_datetime(shop_api.GetEndTime(), tz_name)
         value = get_xyt_attribute(shop_api, object_name, object_type, attribute_name, start, end, dataframe)
     elif datatype == 'txy':
         start_time = shop_api.GetTxySeriesStartTime(object_type, object_name, attribute_name)
         if start_time:
             tz_name = get_shop_timzone_name(shop_api)
-            start_time = get_shop_datetime(start_time,tz_name)
+            start_time = get_shop_datetime(start_time, tz_name)
             t = shop_api.GetTxySeriesT(object_type, object_name, attribute_name)
             y = shop_api.GetTxySeriesY(object_type, object_name, attribute_name)
             time_unit = shop_api.GetTimeUnit()
@@ -89,8 +89,8 @@ def get_xyt_attribute(shop_api, object_name, object_type, attribute_name, start,
 
     # Identify the indices that should be extracted from the xyt series
     tz_name = get_shop_timzone_name(shop_api)
-    shop_start_time = get_shop_datetime(shop_api.GetStartTime(),tz_name)
-    shop_end_time = get_shop_datetime(shop_api.GetEndTime(),tz_name)
+    shop_start_time = get_shop_datetime(shop_api.GetStartTime(), tz_name)
+    shop_end_time = get_shop_datetime(shop_api.GetEndTime(), tz_name)
     min_time_index = int((start - shop_start_time)/(resolution*delta))
     max_time_index = int((end - shop_start_time)/(resolution*delta))
 
@@ -139,7 +139,9 @@ def get_attribute_info(shop_api, object_type, attribute_name, key=''):
     if key:
         return shop_api.GetAttributeInfo(object_type, attribute_name, key)
     else:
-        return {key: shop_api.GetAttributeInfo(object_type, attribute_name, key) for key in shop_api.GetValidAttributeInfoKeys()}
+        return {
+            key: shop_api.GetAttributeInfo(object_type, attribute_name, key) for key in shop_api.GetValidAttributeInfoKeys()
+        }
 
 
 def get_object_info(shop_api, object_type, key=''):
@@ -150,8 +152,8 @@ def get_object_info(shop_api, object_type, key=''):
 
 
 def set_attribute(shop_api, object_name, object_type, attribute_name, datatype, value):
-    ##Set a attribute in the SHOP core.
-    #datatype = get_attribute_info(shop_api, object_type, attribute_name, 'datatype')
+    # Set a attribute in the SHOP core.
+    # datatype = get_attribute_info(shop_api, object_type, attribute_name, 'datatype')
     if datatype == 'int':
         shop_api.SetIntValue(object_type, object_name, attribute_name, int(value))
     elif datatype == 'int_array':
@@ -188,7 +190,7 @@ def set_attribute(shop_api, object_name, object_type, attribute_name, datatype, 
                 ref = np.append(ref, float(df.columns[0]))
                 n = np.append(n, df.size)
                 x = np.append(x, df.index.values)
-                y = np.append(y, df.iloc[:,0].values)
+                y = np.append(y, df.iloc[:, 0].values)
         elif isinstance(value[0], pd.Series):
             for ser in value:
                 ref = np.append(ref, float(ser.name))
@@ -257,18 +259,18 @@ def set_attribute(shop_api, object_name, object_type, attribute_name, datatype, 
 
 def get_time_resolution(shop_api):
     tz_name = get_shop_timzone_name(shop_api)
-    starttime = get_shop_datetime(shop_api.GetStartTime(),tz_name)
-    endtime = get_shop_datetime(shop_api.GetEndTime(),tz_name)
+    starttime = get_shop_datetime(shop_api.GetStartTime(), tz_name)
+    endtime = get_shop_datetime(shop_api.GetEndTime(), tz_name)
     timeunit = shop_api.GetTimeUnit()
     t = shop_api.GetTimeResolutionT()
     y = shop_api.GetTimeResolutionY()
     timeresolution = get_timestamp_indexed_series(starttime, timeunit, t, y)
     return dict(starttime=starttime, endtime=endtime, timeunit=timeunit, timeresolution=timeresolution)
 
+
 def get_shop_timzone_name(shop_api):
     try:
         tz_name = shop_api.GetTimeZone()
-    except AttributeError:  #For backwards compatability to SHOP 13
+    except AttributeError:  # For backwards compatability to SHOP 13
         tz_name = ""
-    
     return tz_name

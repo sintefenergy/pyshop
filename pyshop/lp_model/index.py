@@ -15,7 +15,7 @@ class IndexType(object):
             id_start = self.lp_model._lp_model['index_type_desc_beg'][self.id]
             id_count = self.lp_model._lp_model['index_type_desc_cnt'][self.id]
             return self.lp_model._lp_model['index_type_desc_val'][id_start:id_start+id_count]
-    
+
     def __dir__(self):
         return ['id', 'name', 'description']
 

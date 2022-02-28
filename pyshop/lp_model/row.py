@@ -99,7 +99,7 @@ class Row(object):
     def get_index_values(self):
         lp_model = self.lp_model._lp_model
         return lp_model['row_index_val'][lp_model['row_index_beg'][self.id]:lp_model['row_index_beg'][self.id] +
-            lp_model['row_index_cnt'][self.id]]
+                    lp_model['row_index_cnt'][self.id]]
 
 
 class RowBuilder(object):
@@ -147,7 +147,8 @@ class RowBuilder(object):
             ret_str += Row(self.lp_model, r).format() + '\n'
         return ret_str
 
-    def add(self, row_type: int, row_index: list, variables: list = [], coefficients: list = [], rhs: float = None, sense: int = None):
+    def add(self, row_type: int, row_index: list, variables: list = [],
+            coefficients: list = [], rhs: float = None, sense: int = None):
         row_id = self.filter(row_type=row_type, index_values=row_index)
         self.lp_model.shop.model.lp_model.lp_model['add_row_type'].set(row_type)
         self.lp_model.shop.model.lp_model.lp_model['add_row_index'].set(row_index)
@@ -188,6 +189,7 @@ class RowType(object):
         index_type_cnt = self.lp_model._lp_model['row_type_index_type_cnt']
         index_type_val = self.lp_model._lp_model['row_type_index_type_val']
         return index_type_val[index_type_beg[self.id]:index_type_beg[self.id]+index_type_cnt[self.id]]
+
 
 class RowTypeBuilder(object):
     def __init__(self, lp_model):

@@ -130,7 +130,7 @@ class ShopSession(object):
             timeres_t = timeresolution.index.values
             self.shop_api.SetTimeResolution(start_string, end_string, timeunit, timeres_t, timeresolution.values)
 
-        #Save the time zone in the API so that it can be added to the output TXYs 
+        # Save the time zone in the API so that it can be added to the output TXYs
         tz_name = starttime.tzname()
         if tz_name is not None:
             self.shop_api.SetTimeZone(tz_name)
@@ -228,4 +228,3 @@ class ShopSession(object):
     def get_shop_version(self):
         version_string = self.shop_api.GetVersionString()
         return version_string.split()[0]
-        
