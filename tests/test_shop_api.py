@@ -44,8 +44,8 @@ class TestGetAttribute:
         value = get_attribute_value(self.shop_api, 'obj_name', 'obj_type', 'attr_name', 'xy_array')
         for i, n in enumerate(self.shop_api['GetXyCurveArrayNPoints']):
             n_sum = sum(self.shop_api['GetXyCurveArrayNPoints'][0:i])
-            assert (value[i].index == self.shop_api['GetXyCurveArrayX'][n_sum:n_sum+n]).all()
-            assert (value[i].values == self.shop_api['GetXyCurveArrayY'][n_sum:n_sum+n]).all()
+            assert (value[i].index == self.shop_api['GetXyCurveArrayX'][n_sum:n_sum + n]).all()
+            assert (value[i].values == self.shop_api['GetXyCurveArrayY'][n_sum:n_sum + n]).all()
             assert value[i].name == self.shop_api['GetXyCurveArrayReferences'][i]
 
     def test_get_txy(self):
@@ -68,3 +68,21 @@ class TestSetAttribute:
         assert res[3] == self.shop_api['GetXyCurveReference']
         assert (res[4] == self.shop_api['GetXyCurveX']).all()
         assert (res[5] == self.shop_api['GetXyCurveY']).all()
+
+    def test_set_xy_array(self):
+        xy_array_val = []
+        for i, n in enumerate(self.shop_api['GetXyCurveArrayNPoints']):
+            n_sum = sum(self.shop_api['GetXyCurveArrayNPoints'][0:i])
+            xy_array_val.append(
+                pd.Series(
+                    self.shop_api['GetXyCurveArrayY'][n_sum:n_sum + n],
+                    index = self.shop_api['GetXyCurveArrayX'][n_sum:n_sum + n],
+                    name = self.shop_api['GetXyCurveArrayReferences'][i]
+                )
+            )
+        set_attribute(self.shop_api, 'obj_name', 'obj_type', 'attr_name', 'xy_array', xy_array_val)
+        res = self.shop_api['SetXyCurveArray']
+        assert (res[3] == self.shop_api['GetXyCurveArrayReferences']).all()
+        assert (res[4] == self.shop_api['GetXyCurveArrayNPoints']).all()
+        assert (res[5] == self.shop_api['GetXyCurveArrayX']).all()
+        assert (res[6] == self.shop_api['GetXyCurveArrayY']).all()
