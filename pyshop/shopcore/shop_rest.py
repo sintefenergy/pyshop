@@ -30,8 +30,10 @@ class ShopRestNative(object):
 
     def _generate_command_func(self, shop_session, name):
         def command_func(*args, **kwargs):
-            return requests.post(f'http://{shop_session._host}:{shop_session._port}/internal/{name}',
-                                    headers={**shop_session._auth_headers, "session-id": str(shop_session._id)},
-                                    # params=dict(session=shop_session._id),
-                                    data=json.dumps(dict(args=args, kwargs=kwargs), cls=NumpyArrayEncoder)).json()
+            return requests.post(
+                f'http://{shop_session._host}:{shop_session._port}/internal/{name}',
+                headers={**shop_session._auth_headers, "session-id": str(shop_session._id)},
+                # params=dict(session=shop_session._id),
+                data=json.dumps(dict(args=args, kwargs=kwargs), cls=NumpyArrayEncoder)
+            ).json()
         return command_func

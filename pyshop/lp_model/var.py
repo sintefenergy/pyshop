@@ -72,8 +72,11 @@ class Var(object):
 
     def get_index_values(self):
         lp_model = self.lp_model._lp_model
-        return lp_model['var_index_val'][lp_model['var_index_beg'][self.id]:
-            lp_model['var_index_beg'][self.id] + lp_model['var_index_cnt'][self.id]]
+        return (
+            lp_model['var_index_val'][
+                lp_model['var_index_beg'][self.id]:lp_model['var_index_beg'][self.id] + lp_model['var_index_cnt'][self.id]
+            ]
+        )
 
 
 class VarBuilder(object):

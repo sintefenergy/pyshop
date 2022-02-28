@@ -220,7 +220,7 @@ class AttributeBuilderObject(object):
         object_names = self._shop_api.GetObjectNamesInSystem()
         object_types = self._shop_api.GetObjectTypesInSystem()
         connected_indices = self._shop_api.GetRelations(self._type, self._name, 'connection_standard')
-        comb_names = [object_names[i] for i in connected_indices if object_types[i]=='unit_combination']
+        comb_names = [object_names[i] for i in connected_indices if object_types[i] == 'unit_combination']
         comb_objects = []
         for comb_name in comb_names:
             new_comb = AttributeBuilderObject(self._shop_api, 'unit_combination', comb_name)

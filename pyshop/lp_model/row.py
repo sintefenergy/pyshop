@@ -98,8 +98,11 @@ class Row(object):
 
     def get_index_values(self):
         lp_model = self.lp_model._lp_model
-        return lp_model['row_index_val'][lp_model['row_index_beg'][self.id]:lp_model['row_index_beg'][self.id] +
-                    lp_model['row_index_cnt'][self.id]]
+        return (
+            lp_model['row_index_val'][
+                lp_model['row_index_beg'][self.id]:lp_model['row_index_beg'][self.id] + lp_model['row_index_cnt'][self.id]
+            ]
+        )
 
 
 class RowBuilder(object):

@@ -111,9 +111,9 @@ rsv3.inflow.set(pd.DataFrame([0, 20], index=[starttime, starttime + pd.Timedelta
 
 for i in range(3):
     shop.print_model('','full{}.lp'.format(str(i + 1)))
-    shop.start_sim('',1)
-shop.set_code(['incremental'],[])
-shop.start_sim('',3)
+    shop.start_sim('', 1)
+shop.set_code(['incremental'], [])
+shop.start_sim('', 3)
 
 plt.title('Production and price')
 plt.xlabel('Time')

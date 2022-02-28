@@ -23,7 +23,7 @@ class ShopApiMock:
         def dummy_func(*args):
             return self.mock_dict[command]
         return dummy_func
-    
+
     def __getitem__(self, command):
         return self.mock_dict[command]
 
