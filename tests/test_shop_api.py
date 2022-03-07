@@ -9,6 +9,8 @@ class ShopApiMock:
         'GetIntArray': [11, 22],
         'GetDoubleValue': 1.1,
         'GetDoubleArray': [1.1, 2.2],
+        'GetStringValue': 'abc',
+        'GetStringArray': ['abc', 'def'],
         'GetXyCurveX': [0, 1],
         'GetXyCurveY': [0.0, 1.1],
         'GetXyCurveReference': 0.0,
@@ -66,6 +68,20 @@ class TestGetAttribute:
             ) == self.shop_api['GetDoubleArray']
         )
 
+    def test_get_string(self):
+        assert(
+            get_attribute_value(
+                self.shop_api, 'obj_name', 'obj_type', 'attr_name', 'string'
+            ) == self.shop_api['GetStringValue']
+        )
+
+    def test_get_string_array(self):
+        assert(
+            get_attribute_value(
+                self.shop_api, 'obj_name', 'obj_type', 'attr_name', 'string_array'
+            ) == self.shop_api['GetStringArray']
+        )
+
     def test_get_xy(self):
         value = get_attribute_value(self.shop_api, 'obj_name', 'obj_type', 'attr_name', 'xy')
         assert (value.index == self.shop_api['GetXyCurveX']).all()
@@ -108,8 +124,8 @@ class TestSetAttribute:
             xy_array_val.append(
                 pd.Series(
                     self.shop_api['GetXyCurveArrayY'][n_sum:n_sum + n],
-                    index = self.shop_api['GetXyCurveArrayX'][n_sum:n_sum + n],
-                    name = self.shop_api['GetXyCurveArrayReferences'][i]
+                    index=self.shop_api['GetXyCurveArrayX'][n_sum:n_sum + n],
+                    name=self.shop_api['GetXyCurveArrayReferences'][i]
                 )
             )
         set_attribute(self.shop_api, 'obj_name', 'obj_type', 'attr_name', 'xy_array', xy_array_val)
@@ -133,7 +149,6 @@ class TestSetAttribute:
 
     def test_set_constant_txy(self):
         set_attribute(self.shop_api, 'obj_name', 'obj_type', 'attr_name', 'txy', 1.1)
-        starttime = pd.Timestamp(self.shop_api['GetStartTime'])
         res = self.shop_api['SetTxySeries']
         assert res[3].startswith(self.shop_api['GetStartTime'])
         assert (res[4] == self.shop_api['GetTxySeriesT'][0:1]).all()
