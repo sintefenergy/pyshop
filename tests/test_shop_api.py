@@ -16,7 +16,11 @@ class ShopApiMock:
         'GetTxySeriesStartTime': '202201010000',
         'GetTxySeriesT': [0, 1, 2],
         'GetTxySeriesY': [0.0, 1.1, 2.2],
-        'GetTimeZone': ''
+        'GetTimeZone': '',
+        'GetStartTime': '202201010000',
+        'GetEndTime': '202201010200',
+        'GetTimeResolutionT': [0],
+        'GetTimeResolutionY': [1]
     }
 
     def __getattr__(self, command: str):
@@ -86,3 +90,15 @@ class TestSetAttribute:
         assert (res[4] == self.shop_api['GetXyCurveArrayNPoints']).all()
         assert (res[5] == self.shop_api['GetXyCurveArrayX']).all()
         assert (res[6] == self.shop_api['GetXyCurveArrayY']).all()
+
+    def test_set_txy(self):
+        starttime = pd.Timestamp(self.shop_api['GetStartTime'])
+        txy_val = pd.Series(
+            self.shop_api['GetTxySeriesY'],
+            index=[starttime + pd.Timedelta(hours=t) for t in self.shop_api['GetTxySeriesT']]
+        )
+        set_attribute(self.shop_api, 'obj_name', 'obj_type', 'attr_name', 'txy', txy_val)
+        res = self.shop_api['SetTxySeries']
+        assert res[3].startswith(self.shop_api['GetStartTime'])
+        assert (res[4] == self.shop_api['GetTxySeriesT']).all()
+        assert (res[5] == self.shop_api['GetTxySeriesY']).all()
