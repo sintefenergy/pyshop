@@ -46,13 +46,25 @@ class TestGetAttribute:
         assert get_attribute_value(self.shop_api, 'obj_name', 'obj_type', 'attr_name', 'int') == self.shop_api['GetIntValue']
 
     def test_get_int_array(self):
-        assert get_attribute_value(self.shop_api, 'obj_name', 'obj_type', 'attr_name', 'int_array') == self.shop_api['GetIntArray']
+        assert(
+            get_attribute_value(
+                self.shop_api, 'obj_name', 'obj_type', 'attr_name', 'int_array'
+            ) == self.shop_api['GetIntArray']
+        )
 
     def test_get_double(self):
-        assert get_attribute_value(self.shop_api, 'obj_name', 'obj_type', 'attr_name', 'double') == self.shop_api['GetDoubleValue']
+        assert(
+            get_attribute_value(
+                self.shop_api, 'obj_name', 'obj_type', 'attr_name', 'double'
+            ) == self.shop_api['GetDoubleValue']
+        )
 
     def test_get_double_array(self):
-        assert get_attribute_value(self.shop_api, 'obj_name', 'obj_type', 'attr_name', 'double_array') == self.shop_api['GetDoubleArray']
+        assert(
+            get_attribute_value(
+                self.shop_api, 'obj_name', 'obj_type', 'attr_name', 'double_array'
+            ) == self.shop_api['GetDoubleArray']
+        )
 
     def test_get_xy(self):
         value = get_attribute_value(self.shop_api, 'obj_name', 'obj_type', 'attr_name', 'xy')
