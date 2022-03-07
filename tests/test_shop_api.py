@@ -102,3 +102,11 @@ class TestSetAttribute:
         assert res[3].startswith(self.shop_api['GetStartTime'])
         assert (res[4] == self.shop_api['GetTxySeriesT']).all()
         assert (res[5] == self.shop_api['GetTxySeriesY']).all()
+
+    def test_set_constant_txy(self):
+        set_attribute(self.shop_api, 'obj_name', 'obj_type', 'attr_name', 'txy', 1.1)
+        starttime = pd.Timestamp(self.shop_api['GetStartTime'])
+        res = self.shop_api['SetTxySeries']
+        assert res[3].startswith(self.shop_api['GetStartTime'])
+        assert (res[4] == self.shop_api['GetTxySeriesT'][0:1]).all()
+        assert (res[5] == [1.1]).all()

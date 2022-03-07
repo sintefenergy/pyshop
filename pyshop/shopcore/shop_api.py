@@ -216,8 +216,10 @@ def set_attribute(shop_api, object_name, object_type, attribute_name, datatype, 
             df = value
 
         if df.shape[0] == 0:
-            shop_api.SetTxySeries(object_type, object_name, attribute_name,
-                                  get_shop_timestring(time['starttime']), [], [])
+            shop_api.SetTxySeries(
+                object_type, object_name, attribute_name,
+                get_shop_timestring(time['starttime']), [], []
+            )
             return
 
         # Extract data in time interval
