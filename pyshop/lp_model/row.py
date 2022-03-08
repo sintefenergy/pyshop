@@ -112,13 +112,13 @@ class RowBuilder(object):
     def __init__(self, lp_model:'lp_model.LpModelBuilder'):
         self.lp_model = lp_model
 
-    def __getitem__(self, item:int) -> Row:
+    def __getitem__(self, item:int) -> Optional[Row]:
         if isinstance(item, (int, np.integer)):
             return Row(self.lp_model, item)
         else:
             return None
 
-    def __getattr__(self, item:str) -> int:
+    def __getattr__(self, item:str) -> Optional[int]:
         if item == 'n_rows':
             return self.lp_model._lp_model["row_type"].size
 

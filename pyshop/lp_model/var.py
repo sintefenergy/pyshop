@@ -101,7 +101,7 @@ class VarBuilder(object):
             super().__dir__(), 'n_vars'
         )
 
-    def filter(self, var_type:int=None, index_values:Sequence[int]=[]) -> List[int]:
+    def filter(self, var_type:Optional[int]=None, index_values:Sequence[int]=[]) -> List[int]:
         lp_model = self.lp_model
         result = []
         for (var_id, var_t) in enumerate(lp_model._lp_model['var_type']):

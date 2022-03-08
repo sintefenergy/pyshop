@@ -1,4 +1,4 @@
-from typing import Callable, Dict, List, Union
+from typing import Callable, Dict, List, Optional, Union
 import webbrowser
 from graphviz import Digraph
 import pandas as pd
@@ -26,7 +26,7 @@ class ModelBuilderType(object):
         self._types = {}
         self.update()
 
-    def __getattr__(self, object_type:str) -> 'ModelBuilderObject':
+    def __getattr__(self, object_type:str) -> Optional['ModelBuilderObject']:
         # Recursion guard
         if is_private_attr(object_type):
             return
@@ -39,7 +39,7 @@ class ModelBuilderType(object):
         return [object_type for object_type in self._types] + [x for x in super().__dir__() if x[0] != '_'
                                                                and x not in self._types]
 
-    def __getitem__(self, item:str) -> 'ModelBuilderObject':
+    def __getitem__(self, item:str) -> Optional['ModelBuilderObject']:
         return self.__getattr__(item)
 
     def update(self) -> None:
@@ -116,11 +116,15 @@ class ModelBuilderType(object):
         return dot
 
 class ModelBuilderObjectIterator(object):
-    def __init__(self, model_builder_object):
+    
+    _model_builder_object: 'ModelBuilderObject'
+    _index: int
+
+    def __init__(self, model_builder_object:'ModelBuilderObject') -> None:
         self._model_builder_object = model_builder_object
         self._index = 0
 
-    def __next__(self):
+    def __next__(self) -> Optional['AttributeBuilderObject']:
         if self._index < len(self._model_builder_object.get_object_names()):
             self._index += 1
             return self._model_builder_object.__getattr__(
@@ -143,7 +147,7 @@ class ModelBuilderObject(object):
         self._names = object_names
         self.attributes = {}
 
-    def __getattr__(self, name:str) -> 'AttributeBuilderObject':
+    def __getattr__(self, name:str) -> Optional['AttributeBuilderObject']:
         # Recursion guard
         if is_private_attr(name):
             return
@@ -159,10 +163,10 @@ class ModelBuilderObject(object):
     def __dir__(self) -> List[str]:
         return [x for x in super().__dir__() if x[0] != '_'] + self._names
 
-    def __getitem__(self, item:str) -> 'AttributeBuilderObject':
+    def __getitem__(self, item:str) -> Optional['AttributeBuilderObject']:
         return self.__getattr__(item)
 
-    def add_object(self, name:str) -> 'AttributeBuilderObject':
+    def add_object(self, name:str) -> Optional['AttributeBuilderObject']:
         self._shop_api.AddObject(self._type, name)
         if name in self._shop_api.GetObjectNamesInSystem():
             self._add_object_name(name)
@@ -197,7 +201,7 @@ class AttributeBuilderObject(object):
         self._attr_types = list(shop_api.GetObjectTypeAttributeDatatypes(object_type))
         self.datatype_dict = dict(zip(self._attr_names, self._attr_types))
 
-    def __getattr__(self, attr_name:str) -> Union['AttributeObject',List['AttributeBuilderObject']]:
+    def __getattr__(self, attr_name:str) -> Optional[Union['AttributeObject',List['AttributeBuilderObject']]]:
         # Recursion guard
         if is_private_attr(attr_name):
             return
@@ -218,7 +222,7 @@ class AttributeBuilderObject(object):
         else:
             return dirs
 
-    def __getitem__(self, item:str) -> Union['AttributeObject',List['AttributeBuilderObject']]:
+    def __getitem__(self, item:str) -> Optional[Union['AttributeObject',List['AttributeBuilderObject']]]:
         return self.__getattr__(item)
 
     def _get_generators(self) -> List['AttributeBuilderObject']:
@@ -338,7 +342,7 @@ class AttributeObject(object):
         self._attr_name = attr_name
         self._attr_datatype = attr_datatype
 
-    def __getattr__(self, call:str) -> Callable[[],ShopDatatypes]:
+    def __getattr__(self, call:str) -> Optional[Callable[[],ShopDatatypes]]:
         # Recursion guard
         if is_private_attr(call):
             return
@@ -354,13 +358,13 @@ class AttributeObject(object):
     def __dir__(self) -> List[str]:
         return [x for x in super().__dir__() if x[0] != '_'] + ['get']
 
-    def __getitem__(self, item:str) -> Callable[[],ShopDatatypes]:
+    def __getitem__(self, item:str) -> Optional[Callable[[],ShopDatatypes]]:
         return self.__getattr__(item)
 
     def _get(self) -> ShopDatatypes:
         return get_attribute_value(self._shop_api, self._name, self._type, self._attr_name, self._attr_datatype)
 
-    def _get_xyt(self, start_time:pd.Timestamp=None, end_time:pd.Timestamp=None) -> List[XyType]:
+    def _get_xyt(self, start_time:Optional[pd.Timestamp]=None, end_time:Optional[pd.Timestamp]=None) -> List[XyType]:
         if start_time and end_time:
             return get_xyt_attribute(self._shop_api, self._name, self._type, self._attr_name, start_time, end_time)
         else:
@@ -408,7 +412,7 @@ class ConnectToObjectType(object):
         self._from_name = from_name
         self._connection_type = connection_type
 
-    def __getattr__(self, object_type:str) -> 'ConnectToObject':
+    def __getattr__(self, object_type:str) -> Optional['ConnectToObject']:
         # Recursion guard
         if is_private_attr(object_type):
             return
@@ -416,7 +420,7 @@ class ConnectToObjectType(object):
         return ConnectToObject(self._shop_api, self._from_type, self._from_name, self._connection_type, object_type)
         # print('Get item: '+str(item))
 
-    def __getitem__(self, item:str) -> 'ConnectToObject':
+    def __getitem__(self, item:str) -> Optional['ConnectToObject']:
         return self.__getattr__(item)
 
     def __dir__(self) -> List[str]:
