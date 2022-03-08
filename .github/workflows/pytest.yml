@@ -47,3 +47,7 @@ jobs:
       with:
         name: code-coverage-report
         path: htmlcov
+    - name: Upload report to codecov
+      uses: codecov/codecov-action@v2
+      with:
+        verbose: true
