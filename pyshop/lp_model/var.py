@@ -53,7 +53,7 @@ class Var(object):
             'type_name': self.lp_model.var_type[type_id].name,
             'index_type_ids': index_type_ids,
             'index_type_names': self.lp_model.index_type.get_names()[index_type_ids],
-            'index_values':self.get_index_values(),
+            'index_values': index_values,
             'index_descriptions': [self.lp_model.index_type[t].description[v] for (t,v) in zip(index_type_ids, index_values)],
             'ub': self.lp_model._lp_model['ub'][self.id],
             'lb': self.lp_model._lp_model['lb'][self.id],
