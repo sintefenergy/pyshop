@@ -1,12 +1,14 @@
 import json
 import os
 import sys
+from typing import Dict, List, Optional, Callable
 import pandas as pd
 import numpy as np
 import requests
 
 from .helpers.commands import get_commands_from_file
 from .helpers.time import get_shop_timestring
+from .helpers.typing_annotations import CommandOptions, CommandValues, DataFrameOrSeries, Message, ShopApi
 from .shopcore.model_builder import ModelBuilderType
 from .shopcore.command_builder import CommandBuilder, get_derived_command_key
 from .shopcore.shop_api import get_time_resolution
@@ -16,10 +18,23 @@ from .lp_model.lp_model import LpModelBuilder
 
 class ShopSession(object):
     # Class for handling a SHOP session through the python API.
+    _log_file:str 
+    _name:str
+    _id:int
+    _sim_has_started:bool
+    _host:str
+    _port:int
+    _auth_headers:Dict[str,str]
+    shop_api:ShopApi
+    model:ModelBuilderType
+    lp_model:LpModelBuilder
+    _commands:Dict[str,str]
+    _all_messages:List[Dict[str,str]]
+    _command:str
 
-    def __init__(self, license_path='', silent=True, log_file='', solver_path='', suppress_log=False, log_gets=True,
-                 name='unnamed', id=1, host='', port=8000):
-        # Used by the SHOP rest API
+    def __init__(self, license_path:str = '', silent:bool = True, log_file:str = '', solver_path:str = '', suppress_log:bool = False,
+                 log_gets:bool = True, name:str = 'unnamed', id:int = 1, host:str = '', port:int = 8000) -> None:
+        #Used by the SHOP rest APi 
         self._log_file = log_file
         self._name = name
         self._id = id
@@ -44,7 +59,6 @@ class ShopSession(object):
             else:
                 raise Exception(f"Could not connect to server: Status code {response.status_code}")
             self.shop_api = ShopRestNative(self)
-
         else:
             # Initialize a new SHOP session
             #
@@ -80,17 +94,17 @@ class ShopSession(object):
         self.lp_model = LpModelBuilder(self)
         self._commands = {x.replace(' ', '_'): x for x in self.shop_api.GetCommandTypesInSystem()}
         self._all_messages = []
-        self._command = None
+        self._command = ""        
 
-    def __dir__(self):
-        return list(self._commands.keys()) + [x for x in super().__dir__() if x[0] != '_'
+    def __dir__(self) -> List[str]:
+        return list(self._commands.keys()) + [x for x in super().__dir__() if x[0] != '_' 
                                               and x not in self._commands.keys()]
 
-    def __getattr__(self, command):
+    def __getattr__(self, command:str) -> Callable[[CommandOptions,CommandValues],bool]:
         self._command = command.lower()
         return self._execute_command
 
-    def _execute_command(self, options, values):
+    def _execute_command(self, options:CommandOptions, values:CommandValues) -> bool:
         self._command = get_derived_command_key(self._command, self._commands)
         if self._command not in self._commands:
             raise ValueError(f'Unknown command: "{self._command.replace("_", " ")}"')
@@ -101,14 +115,13 @@ class ShopSession(object):
         options = map(str, options)
         options = filter(lambda x: x, options)
         values = map(str, values)
-        values = filter(lambda x: x, values)
+        values = filter(lambda x: x, values)        
         return self.shop_api.ExecuteCommand(self._commands[self._command], list(options), list(values))
 
-    def set_time_resolution(self, starttime, endtime, timeunit, timeresolution=None):
+    def set_time_resolution(self, starttime:pd.Timestamp, endtime:pd.Timestamp, timeunit:str, timeresolution:Optional[DataFrameOrSeries]=None) -> None:
         # Reformat timestamps to format expected by Shop
         start_string = get_shop_timestring(starttime)
         end_string = get_shop_timestring(endtime)
-
         # Handle time resolution
         # Constant
         if not isinstance(timeresolution, pd.DataFrame) and not isinstance(timeresolution, pd.Series):
@@ -135,11 +148,11 @@ class ShopSession(object):
         if tz_name is not None:
             self.shop_api.SetTimeZone(tz_name)
 
-    def get_time_resolution(self):
+    def get_time_resolution(self) -> Dict:
         # Get time resolution
         return get_time_resolution(self.shop_api)
 
-    def get_messages(self, all_messages=False):
+    def get_messages(self, all_messages:bool=False) -> Message:
         # Get all new messages from the buffer as a dict.
         messages = self.shop_api.GetMessages()
         messages = json.loads(messages)
@@ -151,7 +164,7 @@ class ShopSession(object):
         else:
             return messages
 
-    def execute_full_command(self, full_command):
+    def execute_full_command(self, full_command:str) -> None:
         parts = full_command.lower().strip().split()
         # First try to get a match using the two first words
         first_non_command = 2
@@ -177,14 +190,14 @@ class ShopSession(object):
         self._command = command
         self._execute_command(options, values)
 
-    def get_executed_commands(self):
+    def get_executed_commands(self) -> List[str]:
         commands = self.shop_api.GetExecutedCommands()
         return commands
 
-    def read_ascii_file(self, file_path):
+    def read_ascii_file(self, file_path:str) -> None:
         self.shop_api.ReadShopAsciiFile(file_path)
 
-    def load_yaml(self, file_path='', yaml_string=''):
+    def load_yaml(self, file_path:str='', yaml_string:str='') -> None:
         if file_path != '' and yaml_string != '':
             raise ValueError('Provide either a file path or a yaml string, not both')
         if file_path != '':
@@ -194,21 +207,21 @@ class ShopSession(object):
         elif yaml_string != '':
             self.shop_api.ReadYamlString(yaml_string)
 
-    def dump_yaml(self, file_path='', input_only=False, compress_txy=False, compress_connection=False):
+    def dump_yaml(self, file_path:str='', input_only:bool=False, compress_txy:bool=False, compress_connection:bool=False) -> str:
         if file_path != '':
             self.shop_api.DumpYamlCase(file_path, input_only, compress_txy, compress_connection)
             return f'YAML case is dumped to the provided file path: "{file_path}"'
         else:
             return self.shop_api.DumpYamlString(input_only, compress_txy, compress_connection)
 
-    def run_command_file(self, folder, command_file):
+    def run_command_file(self, folder:str, command_file:str) -> None:
         with open(os.path.join(folder, command_file), 'r', encoding='iso-8859-1') as run_file:
             file_string = run_file.read()
             run_commands = get_commands_from_file(file_string)
         for command in run_commands:
             self.shop_api.ExecuteCommand(command['command'], command['options'], command['values'])
 
-    def run_command_file_progress(self, folder, command_file):
+    def run_command_file_progress(self, folder:str, command_file:str) -> None:
         with open(os.path.join(folder, command_file), 'r', encoding='iso-8859-1') as run_file:
             file_string = run_file.read()
             run_commands = get_commands_from_file(file_string)
@@ -221,10 +234,10 @@ class ShopSession(object):
             values_list.append(command['values'])
         self.shop_api.ExecuteCommandList(command_list, options_list, values_list)
 
-    def execute_command(self):
+    def execute_command(self) -> CommandBuilder:
         # Terminal function for executing SHOP commands that gives code completion for SHOP commands.
         return CommandBuilder(self.shop_api)
 
-    def get_shop_version(self):
+    def get_shop_version(self) -> str:
         version_string = self.shop_api.GetVersionString()
         return version_string.split()[0]

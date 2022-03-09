@@ -1,12 +1,13 @@
+from typing import Dict, Sequence, Union
+from .typing_annotations import DataFrameOrSeries
 import pandas as pd
 import numpy as np
 
-
-def create_constant_time_series(value, start):
+def create_constant_time_series(value:Union[int,float], start:pd.Timestamp) -> pd.Series:
     return pd.Series([value], index=[start])
 
 
-def remove_consecutive_duplicates(df):
+def remove_consecutive_duplicates(df:DataFrameOrSeries) -> DataFrameOrSeries:
     """
     Compress timeseries by only keeping the first row of consecutive duplicates. This is done by comparing a copied
     DataFrame/Series that has been shifted by one, with the original, and only keeping the rows in which at least one
@@ -19,7 +20,7 @@ def remove_consecutive_duplicates(df):
     return df
 
 
-def get_timestamp_indexed_series(starttime, time_unit, t, y, column_name='data'):
+def get_timestamp_indexed_series(starttime:pd.Timestamp, time_unit:str, t:Sequence[Union[int,float]], y:Sequence[float], column_name:str='data') -> DataFrameOrSeries:
     if not isinstance(t, np.ndarray):
         t = np.fromiter(t, int)
     if not isinstance(y, np.ndarray):
@@ -39,17 +40,19 @@ def get_timestamp_indexed_series(starttime, time_unit, t, y, column_name='data')
     t = np.repeat(starttime.to_datetime64(), t.size) + t * delta
     if y.size > t.size:  # Stochastic
         value = pd.DataFrame(data=y, index=t)
+        if tz_name is not None:
+            value.index = value.index.tz_localize(tz=tz_name)     #Add the original time zone info back        
     else:
         value = pd.Series(data=y.flatten(), index=t, name=column_name)
+        if tz_name is not None:
+            value = value.tz_localize(tz=tz_name)                 #Add the original time zone info back 
+
     value[value >= 1.0e40] = np.nan
 
-    # Add the original time zone info back
-    if tz_name is not None:
-        value.index = value.index.tz_localize(tz=tz_name)
     return value
 
 
-def resample_resolution(time, df, delta, time_resolution):
+def resample_resolution(time:Dict, df:DataFrameOrSeries, delta:float, time_resolution:pd.Series) -> DataFrameOrSeries:
     """
     Resample timeseries when time resolution is non-constant
     """
