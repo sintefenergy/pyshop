@@ -1,6 +1,6 @@
 # pyshop
 Status:
-[![codecov](https://codecov.io/gh/sintef-energy/pyshop/branch/interface_tests/graph/badge.svg)](https://codecov.io/gh/sintef-energy/pyshop/branch/interface_tests/)
+[![codecov](https://codecov.io/gh/sintef-energy/pyshop/branch/main/graph/badge.svg?token=FYASF5O90D)](https://codecov.io/gh/sintef-energy/pyshop/branch/main/)
 
 The nicest python interface to SHOP!
 
