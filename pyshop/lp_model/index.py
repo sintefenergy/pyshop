@@ -11,7 +11,7 @@ class IndexType(object):
         self.lp_model = lp_model
         self.id = id
 
-    def __getattr__(self, attr:str) -> Union[int,str]:
+    def __getattr__(self, attr:str) -> Union[int, str, Sequence[str]]:
         if attr == 'id':
             return self.id
         elif attr == 'name':

@@ -120,7 +120,7 @@ class RowBuilder(object):
 
     def __getattr__(self, item:str) -> int:
         if item == 'n_rows':
-            return self.lp_model._lp_model["row_type"].size
+            return self.lp_model._lp_model['row_type'].size
 
     def __dir__(self) -> Sequence[str]:
         return np.append(

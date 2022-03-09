@@ -174,6 +174,9 @@ class ModelBuilderObject(object):
     def get_object_names(self) -> List[str]:
         return self._names
 
+    def get_attribute_names(self) -> List[str]:
+        return self._shop_api.GetObjectTypeAttributeNames(self._type)
+
     def info(self):
         return get_object_info(self._shop_api, self._type)
 

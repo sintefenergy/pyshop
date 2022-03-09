@@ -94,7 +94,7 @@ class VarBuilder(object):
 
     def __getattr__(self, item:str) -> int:
         if item == 'n_vars':
-            return self.lp_model._lp_model["var_type"].size
+            return self.lp_model._lp_model['var_type'].size
     
     def __dir__(self) -> Sequence[str]:
         return np.append(
