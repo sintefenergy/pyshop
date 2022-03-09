@@ -1,0 +1,6 @@
+matplotlib
+pandas
+numpy
+graphviz
+pybind11
+requests

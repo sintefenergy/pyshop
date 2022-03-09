@@ -18,7 +18,6 @@ from .lp_model.lp_model import LpModelBuilder
 
 class ShopSession(object):
     # Class for handling a SHOP session through the python API.
-
     _log_file:str 
     _name:str
     _id:int
@@ -33,7 +32,8 @@ class ShopSession(object):
     _all_messages:List[Dict[str,str]]
     _command:str
 
-    def __init__(self, license_path:str='', silent:bool=True, log_file:str='', solver_path:str='', suppress_log:bool=False, log_gets:bool=True, name:str='unnamed', id:int=1, host:str='', port:int=8000) -> None:
+    def __init__(self, license_path:str = '', silent:bool = True, log_file:str = '', solver_path:str = '', suppress_log:bool = False,
+                 log_gets:bool = True, name:str = 'unnamed', id:int = 1, host:str = '', port:int = 8000) -> None:
         #Used by the SHOP rest APi 
         self._log_file = log_file
         self._name = name
@@ -65,16 +65,17 @@ class ShopSession(object):
             # @param license_path The path where the license file, solver and solver interface are located
             if license_path:
                 os.environ['ICC_COMMAND_PATH'] = license_path
-            
+
             if 'ICC_COMMAND_PATH' not in os.environ:
-                print("The environment variable 'ICC_COMMAND_PATH' is not set. Please use the keyword argument 'license_path' to specify the location of the SHOP license file.")
-                
-            #Insert either the solver_path or the ICC_COMMAND_PATH to sys.path to find shop_pybind.pyd and solver dlls
+                print("""The environment variable 'ICC_COMMAND_PATH' is not set.
+                    Please use the keyword argument 'license_path' to specify the location of the SHOP license file.""")
+
+            # Insert either the solver_path or the ICC_COMMAND_PATH to sys.path to find shop_pybind.pyd and solver dlls
             if solver_path:
                 solver_path = os.path.abspath(solver_path)
-                sys.path.insert(1,solver_path)
-            else:            
-                sys.path.insert(1,os.environ['ICC_COMMAND_PATH'])
+                sys.path.insert(1, solver_path)
+            else:
+                sys.path.insert(1, os.environ['ICC_COMMAND_PATH'])
 
             import shop_pybind as pb
 
@@ -84,11 +85,11 @@ class ShopSession(object):
                 self.shop_api = pb.ShopCore(silent_console, silent_log, log_file, log_gets)
             else:
                 self.shop_api = pb.ShopCore(silent_console, silent_log)
-            
-            #Override where SHOP will look for solver dlls
+
+            # Override where SHOP will look for solver dlls
             if solver_path:
                 self.shop_api.OverrideDllPath(solver_path)
-            
+
         self.model = ModelBuilderType(self.shop_api)
         self.lp_model = LpModelBuilder(self)
         self._commands = {x.replace(' ', '_'): x for x in self.shop_api.GetCommandTypesInSystem()}
@@ -142,7 +143,7 @@ class ShopSession(object):
             timeres_t = timeresolution.index.values
             self.shop_api.SetTimeResolution(start_string, end_string, timeunit, timeres_t, timeresolution.values)
 
-        #Save the time zone in the API so that it can be added to the output TXYs 
+        # Save the time zone in the API so that it can be added to the output TXYs
         tz_name = starttime.tzname()
         if tz_name is not None:
             self.shop_api.SetTimeZone(tz_name)

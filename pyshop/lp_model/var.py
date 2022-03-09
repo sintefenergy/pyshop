@@ -2,6 +2,7 @@ from typing import Any, Dict, List, Optional, Sequence, Union
 import numpy as np
 from . import lp_model
 
+
 class Var(object):
 
     lp_model:'lp_model.LpModelBuilder'
@@ -30,7 +31,7 @@ class Var(object):
         elif attr == 'index_descriptions':
             index_types = self.lp_model.var_type[type_id].get_index_types()
             index_values = self.get_index_values()
-            return [self.lp_model.index_type[t].description[v] for (t,v) in zip(index_types, index_values)]
+            return [self.lp_model.index_type[t].description[v] for (t, v) in zip(index_types, index_values)]
         elif attr in self.__dir__():
             return self.lp_model._lp_model[attr][self.id]
         else:
@@ -39,10 +40,10 @@ class Var(object):
     def __dir__(self) -> Sequence[str]:
         return np.append(
             ['id', 'type_id', 'type_name', 'type_abbrev', 'index_type_ids', 'index_type_names',
-            'index_values', 'index_descriptions', 'ub', 'lb', 'cc', 'bin'],
+                'index_values', 'index_descriptions', 'ub', 'lb', 'cc', 'bin'],
             super().__dir__()
         )
-    
+
     def info(self) -> Dict[str,Any]:
         type_id = self.lp_model._lp_model['var_type'][self.id]
         index_type_ids = self.lp_model.var_type[type_id].get_index_types()
@@ -54,30 +55,35 @@ class Var(object):
             'index_type_ids': index_type_ids,
             'index_type_names': self.lp_model.index_type.get_names()[index_type_ids],
             'index_values': index_values,
-            'index_descriptions': [self.lp_model.index_type[t].description[v] for (t,v) in zip(index_type_ids, index_values)],
+            'index_descriptions': [self.lp_model.index_type[t].description[v] for (t, v) in zip(index_type_ids, index_values)],
             'ub': self.lp_model._lp_model['ub'][self.id],
             'lb': self.lp_model._lp_model['lb'][self.id],
             'cc': self.lp_model._lp_model['cc'][self.id],
             'bin': self.lp_model._lp_model['bin'][self.id]
         }
-    
+
     def format(self) -> str:
         return '{} <= {}{} <= {}'.format(self.lb, self.type_abbrev, self.index_values, self.ub)
 
-    def set_parameters(self, ub: Optional[float]=None, lb: Optional[float]=None, cc: Optional[float]=None, bin: Optional[int]=None) -> int:
+    def set_parameters(self, ub: Optional[float] = None, lb: Optional[float] = None, cc: Optional[float] = None, bin: Optional[int] = None) -> int:
         info = self.info()
         self.lp_model.shop.model.lp_model.lp_model['add_var_type'].set(info['type_id'])
         self.lp_model.shop.model.lp_model.lp_model['add_var_index'].set(info['index_values'])
-        self.lp_model.shop.model.lp_model.lp_model['add_var_ub'].set(info['ub'] if ub == None else ub)
-        self.lp_model.shop.model.lp_model.lp_model['add_var_lb'].set(info['lb'] if lb == None else lb)
-        self.lp_model.shop.model.lp_model.lp_model['add_var_cc'].set(info['cc'] if cc == None else cc)
-        self.lp_model.shop.model.lp_model.lp_model['add_var_bin'].set((1 if info['bin'] else 0) if bin == None else bin)
-        self.lp_model.shop.set_lp_var([],[])
+        self.lp_model.shop.model.lp_model.lp_model['add_var_ub'].set(info['ub'] if ub is None else ub)
+        self.lp_model.shop.model.lp_model.lp_model['add_var_lb'].set(info['lb'] if lb is None else lb)
+        self.lp_model.shop.model.lp_model.lp_model['add_var_cc'].set(info['cc'] if cc is None else cc)
+        self.lp_model.shop.model.lp_model.lp_model['add_var_bin'].set((1 if info['bin'] else 0) if bin is None else bin)
+        self.lp_model.shop.set_lp_var([], [])
         return self.lp_model.shop.model.lp_model.lp_model['add_var_last'].get()
-    
+
     def get_index_values(self) -> Sequence[int]:
         lp_model = self.lp_model._lp_model
-        return lp_model['var_index_val'][lp_model['var_index_beg'][self.id]:lp_model['var_index_beg'][self.id] + lp_model['var_index_cnt'][self.id]]
+        return (
+            lp_model['var_index_val'][
+                lp_model['var_index_beg'][self.id]:lp_model['var_index_beg'][self.id] + lp_model['var_index_cnt'][self.id]
+            ]
+        )
+
 
 class VarBuilder(object):
 
@@ -112,7 +118,7 @@ class VarBuilder(object):
                 else:
                     index_val = lp_model.var[var_id].get_index_values()
                     success = True
-                    for (i,r) in zip(index_val, index_values):
+                    for (i, r) in zip(index_val, index_values):
                         if i != r and r > -1:
                             success = False
                             break
@@ -120,23 +126,26 @@ class VarBuilder(object):
                         result.append(var_id)
         return result
 
-    def add(self, variable_type: int, variable_index: Sequence[int], ub: Optional[float]=None, lb: Optional[float]=None, cc: Optional[float]=None, bin: Optional[int]=None) -> int:
+    def add(self, variable_type: int, variable_index: Sequence[int],
+            ub: Optional[float] = None, lb: Optional[float] = None, cc: Optional[float] = None,
+            bin: Optional[int] = None) -> int:
         var_id = self.filter(var_type=variable_type, index_values=variable_index)
         self.lp_model.shop.model.lp_model.lp_model['add_var_type'].set(variable_type)
         self.lp_model.shop.model.lp_model.lp_model['add_var_index'].set(variable_index)
         if len(var_id) > 0:
             info = self[var_id].info()
-            self.lp_model.shop.model.lp_model.lp_model['add_var_ub'].set(info['ub'] if ub == None else ub)
-            self.lp_model.shop.model.lp_model.lp_model['add_var_lb'].set(info['lb'] if lb == None else lb)
-            self.lp_model.shop.model.lp_model.lp_model['add_var_cc'].set(info['cc'] if cc == None else cc)
-            self.lp_model.shop.model.lp_model.lp_model['add_var_bin'].set((1 if info['bin'] else 0) if bin == None else bin)
+            self.lp_model.shop.model.lp_model.lp_model['add_var_ub'].set(info['ub'] if ub is None else ub)
+            self.lp_model.shop.model.lp_model.lp_model['add_var_lb'].set(info['lb'] if lb is None else lb)
+            self.lp_model.shop.model.lp_model.lp_model['add_var_cc'].set(info['cc'] if cc is None else cc)
+            self.lp_model.shop.model.lp_model.lp_model['add_var_bin'].set((1 if info['bin'] else 0) if bin is None else bin)
         else:
-            self.lp_model.shop.model.lp_model.lp_model['add_var_ub'].set(1e20 if ub == None else ub)
-            self.lp_model.shop.model.lp_model.lp_model['add_var_lb'].set(-1e20 if lb == None else lb)
-            self.lp_model.shop.model.lp_model.lp_model['add_var_cc'].set(0.0 if cc == None else cc)
-            self.lp_model.shop.model.lp_model.lp_model['add_var_bin'].set(0 if bin == None else bin)
+            self.lp_model.shop.model.lp_model.lp_model['add_var_ub'].set(1e20 if ub is None else ub)
+            self.lp_model.shop.model.lp_model.lp_model['add_var_lb'].set(-1e20 if lb is None else lb)
+            self.lp_model.shop.model.lp_model.lp_model['add_var_cc'].set(0.0 if cc is None else cc)
+            self.lp_model.shop.model.lp_model.lp_model['add_var_bin'].set(0 if bin is None else bin)
 
         return self.lp_model.shop.model.lp_model.lp_model['add_var_last'].get()
+
 
 class VarType(object):
 
@@ -158,7 +167,7 @@ class VarType(object):
             index_type = self.get_index_types()
             return self.lp_model.index_type.get_names()[index_type]
             # return self.lp_model.get_index_types()[index_type]
-    
+
     def __dir__(self) -> List[str]:
         return ['id', 'name', 'index_types', 'index_type_names']
 
@@ -167,6 +176,7 @@ class VarType(object):
         index_type_cnt = self.lp_model._lp_model['var_type_index_type_cnt']
         index_type_val = self.lp_model._lp_model['var_type_index_type_val']
         return index_type_val[index_type_beg[self.id]:index_type_beg[self.id]+index_type_cnt[self.id]]
+
 
 class VarTypeBuilder(object):
 

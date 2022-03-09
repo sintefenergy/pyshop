@@ -6,6 +6,7 @@ from .row import RowBuilder, RowTypeBuilder
 from .var import VarBuilder, VarTypeBuilder
 from .index import IndexTypeBuilder
 
+
 class LpModelBuilder(object):
 
     shop:'shop_runner.ShopSession'
@@ -30,10 +31,10 @@ class LpModelBuilder(object):
         self.shop.start_sim([], ['1'])
 
     def load_model(self) -> None:
-        self.shop.reset_lp_model([],[])
+        self.shop.reset_lp_model([], [])
         for attr_name in self.get_lp_model_attributes():
             self._lp_model[attr_name] = np.array(self.shop.model.lp_model.lp_model[attr_name].get())
-    
+
     def load_results(self) -> None:
         for attr_name in ["x", "dual"]:
             self._lp_model[attr_name] = np.array(self.shop.model.lp_model.lp_model[attr_name].get())
@@ -51,7 +52,7 @@ class LpModelBuilder(object):
         for var_id in range(self.var.n_vars):
             if len(var_types) == 0 or self.var[var_id].type_id in var_types:
                 print(self.var[var_id].format())
-    
+
     def save(self, filename:str, row_types:Sequence[int]=[], var_types:Sequence[int]=[]) -> None:
         with open(filename, "w") as file:
             file.write(self.row.format(row_types) + '\n')

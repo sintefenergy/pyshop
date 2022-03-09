@@ -8,7 +8,7 @@ from ..helpers.timeseries import create_constant_time_series, get_timestamp_inde
 
 def get_attribute_value(shop_api:ShopApi, object_name:str, object_type:str, attribute_name:str, datatype:str, dataframe:bool=True) -> ShopDatatypes:
     value = None
-    if datatype == 'int': 
+    if datatype == 'int':
         value = shop_api.GetIntValue(object_type, object_name, attribute_name)
     elif datatype == 'int_array':
         value = list(shop_api.GetIntArray(object_type, object_name, attribute_name))
@@ -59,14 +59,14 @@ def get_attribute_value(shop_api:ShopApi, object_name:str, object_type:str, attr
                     offset += n_items
     elif datatype == 'xyt':
         tz_name = get_shop_timzone_name(shop_api)
-        start = get_shop_datetime(shop_api.GetStartTime(),tz_name)
-        end = get_shop_datetime(shop_api.GetEndTime(),tz_name)
+        start = get_shop_datetime(shop_api.GetStartTime(), tz_name)
+        end = get_shop_datetime(shop_api.GetEndTime(), tz_name)
         value = get_xyt_attribute(shop_api, object_name, object_type, attribute_name, start, end, dataframe)
     elif datatype == 'txy':
         start_time = shop_api.GetTxySeriesStartTime(object_type, object_name, attribute_name)
         if start_time:
             tz_name = get_shop_timzone_name(shop_api)
-            start_time = get_shop_datetime(start_time,tz_name)
+            start_time = get_shop_datetime(start_time, tz_name)
             t = shop_api.GetTxySeriesT(object_type, object_name, attribute_name)
             y = shop_api.GetTxySeriesY(object_type, object_name, attribute_name)
             time_unit = shop_api.GetTimeUnit()
@@ -90,8 +90,8 @@ def get_xyt_attribute(shop_api:ShopApi, object_name:str, object_type:str, attrib
 
     # Identify the indices that should be extracted from the xyt series
     tz_name = get_shop_timzone_name(shop_api)
-    shop_start_time = get_shop_datetime(shop_api.GetStartTime(),tz_name)
-    shop_end_time = get_shop_datetime(shop_api.GetEndTime(),tz_name)
+    shop_start_time = get_shop_datetime(shop_api.GetStartTime(), tz_name)
+    shop_end_time = get_shop_datetime(shop_api.GetEndTime(), tz_name)
     min_time_index = int((start - shop_start_time)/(resolution*delta))
     max_time_index = int((end - shop_start_time)/(resolution*delta))
 
@@ -140,7 +140,9 @@ def get_attribute_info(shop_api:ShopApi, object_type:str, attribute_name:str, ke
     if key:
         return shop_api.GetAttributeInfo(object_type, attribute_name, key)
     else:
-        return {key: shop_api.GetAttributeInfo(object_type, attribute_name, key) for key in shop_api.GetValidAttributeInfoKeys()}
+        return {
+            key: shop_api.GetAttributeInfo(object_type, attribute_name, key) for key in shop_api.GetValidAttributeInfoKeys()
+        }
 
 
 def get_object_info(shop_api:ShopApi, object_type:str, key:str='') -> Union[str,Dict[str,str]]:
@@ -149,10 +151,9 @@ def get_object_info(shop_api:ShopApi, object_type:str, key:str='') -> Union[str,
     else:
         return {key: shop_api.GetObjectInfo(object_type, key) for key in shop_api.GetValidObjectInfoKeys()}
 
-
 def set_attribute(shop_api:ShopApi, object_name:str, object_type:str, attribute_name:str, datatype:str, value:ShopDatatypes) -> None:
-    ##Set a attribute in the SHOP core.
-    #datatype = get_attribute_info(shop_api, object_type, attribute_name, 'datatype')
+    # Set a attribute in the SHOP core.
+    # datatype = get_attribute_info(shop_api, object_type, attribute_name, 'datatype')
     if datatype == 'int':
         shop_api.SetIntValue(object_type, object_name, attribute_name, int(value))
     elif datatype == 'int_array':
@@ -189,7 +190,7 @@ def set_attribute(shop_api:ShopApi, object_name:str, object_type:str, attribute_
                 ref = np.append(ref, float(df.columns[0]))
                 n = np.append(n, df.size)
                 x = np.append(x, df.index.values)
-                y = np.append(y, df.iloc[:,0].values)
+                y = np.append(y, df.iloc[:, 0].values)
         elif isinstance(value[0], pd.Series):
             for ser in value:
                 ref = np.append(ref, float(ser.name))
@@ -215,8 +216,10 @@ def set_attribute(shop_api:ShopApi, object_name:str, object_type:str, attribute_
             df = value
 
         if df.shape[0] == 0:
-            shop_api.SetTxySeries(object_type, object_name, attribute_name,
-                                  get_shop_timestring(time['starttime']), [], [])
+            shop_api.SetTxySeries(
+                object_type, object_name, attribute_name,
+                get_shop_timestring(time['starttime']), [], []
+            )
             return
 
         # Extract data in time interval
@@ -258,8 +261,8 @@ def set_attribute(shop_api:ShopApi, object_name:str, object_type:str, attribute_
 
 def get_time_resolution(shop_api:ShopApi) -> Dict[str,Any]:
     tz_name = get_shop_timzone_name(shop_api)
-    starttime = get_shop_datetime(shop_api.GetStartTime(),tz_name)
-    endtime = get_shop_datetime(shop_api.GetEndTime(),tz_name)
+    starttime = get_shop_datetime(shop_api.GetStartTime(), tz_name)
+    endtime = get_shop_datetime(shop_api.GetEndTime(), tz_name)
     timeunit = shop_api.GetTimeUnit()
     t = shop_api.GetTimeResolutionT()
     y = shop_api.GetTimeResolutionY()
@@ -269,7 +272,6 @@ def get_time_resolution(shop_api:ShopApi) -> Dict[str,Any]:
 def get_shop_timzone_name(shop_api:ShopApi) -> str:
     try:
         tz_name = shop_api.GetTimeZone()
-    except AttributeError:  #For backwards compatability to SHOP 13
+    except AttributeError:  # For backwards compatability to SHOP 13
         tz_name = ""
-    
     return tz_name

@@ -2,6 +2,7 @@ from typing import List, Optional, Sequence, Union
 import numpy as np
 from . import lp_model
 
+
 class IndexType(object):
 
     lp_model:'lp_model.LpModelBuilder'
@@ -20,9 +21,10 @@ class IndexType(object):
             id_start = self.lp_model._lp_model['index_type_desc_beg'][self.id]
             id_count = self.lp_model._lp_model['index_type_desc_cnt'][self.id]
             return self.lp_model._lp_model['index_type_desc_val'][id_start:id_start+id_count]
-    
+
     def __dir__(self) -> List[str]:
         return ['id', 'name', 'description']
+
 
 class IndexTypeBuilder(object):
 

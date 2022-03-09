@@ -2,6 +2,7 @@ from typing import Any, Dict, List, Optional, Sequence, Union
 import numpy as np
 from . import lp_model
 
+
 class Row(object):
 
     lp_model:'lp_model.LpModelBuilder'
@@ -28,13 +29,13 @@ class Row(object):
         elif attr == 'index_descriptions':
             index_types = self.lp_model.row_type[type_id].get_index_types()
             index_values = self.get_index_values()
-            return [self.lp_model.index_type[t].descrition[v] for (t,v) in zip(index_types, index_values)]
+            return [self.lp_model.index_type[t].descrition[v] for (t, v) in zip(index_types, index_values)]
         elif attr == 'vars':
             lp_model = self.lp_model._lp_model
             ij = lp_model['Irow'] == self.id
             var_ids = lp_model['Jcol'][ij]
             var_coeffs = lp_model['AA'][ij]
-            return [(i,c) for (i,c) in zip(var_ids, var_coeffs)]
+            return [(i, c) for (i, c) in zip(var_ids, var_coeffs)]
         elif attr in self.__dir__():
             return self.lp_model._lp_model[attr][self.id]
         else:
@@ -43,10 +44,10 @@ class Row(object):
     def __dir__(self) -> Sequence[str]:
         return np.append(
             ['id', 'type_id', 'type_name', 'index_type_ids', 'index_type_names',
-            'index_values', 'index_descriptions', 'vars', 'rhs', 'sense'],
+                'index_values', 'index_descriptions', 'vars', 'rhs', 'sense'],
             super(Row, self).__dir__()
         )
-    
+
     def info(self) -> Dict[str,Any]:
         type_id = self.lp_model._lp_model['row_type'][self.id]
         index_type_ids = self.lp_model.row_type[type_id].get_index_types()
@@ -63,8 +64,8 @@ class Row(object):
             'index_type_ids': index_type_ids,
             'index_type_names': self.lp_model.index_type.get_names()[index_type_ids],
             'index_values': index_values,
-            'index_descriptions': [self.lp_model.index_type[t].description[v] for (t,v) in zip(index_type_ids, index_values)],
-            'vars': [(i,c) for (i,c) in zip(var_ids, var_coeffs)],
+            'index_descriptions': [self.lp_model.index_type[t].description[v] for (t, v) in zip(index_type_ids, index_values)],
+            'vars': [(i, c) for (i, c) in zip(var_ids, var_coeffs)],
             'rhs': rhs,
             'sense': sense
         }
@@ -96,14 +97,19 @@ class Row(object):
         self.lp_model.shop.model.lp_model.lp_model['add_row_index'].set(info['index_values'])
         self.lp_model.shop.model.lp_model.lp_model['add_row_variables'].set(variables)
         self.lp_model.shop.model.lp_model.lp_model['add_row_coeff'].set(coefficients)
-        self.lp_model.shop.model.lp_model.lp_model['add_row_rhs'].set(info['rhs'] if rhs == None else rhs)
-        self.lp_model.shop.model.lp_model.lp_model['add_row_sense'].set(info['sense'] if sense == None else sense)
-        self.lp_model.shop.set_lp_row([],[])
+        self.lp_model.shop.model.lp_model.lp_model['add_row_rhs'].set(info['rhs'] if rhs is None else rhs)
+        self.lp_model.shop.model.lp_model.lp_model['add_row_sense'].set(info['sense'] if sense is None else sense)
+        self.lp_model.shop.set_lp_row([], [])
         return self.lp_model.shop.model.lp_model.lp_model['add_row_last'].get()
 
     def get_index_values(self) -> List[int]:
         lp_model = self.lp_model._lp_model
-        return lp_model['row_index_val'][lp_model['row_index_beg'][self.id]:lp_model['row_index_beg'][self.id] + lp_model['row_index_cnt'][self.id]]
+        return (
+            lp_model['row_index_val'][
+                lp_model['row_index_beg'][self.id]:lp_model['row_index_beg'][self.id] + lp_model['row_index_cnt'][self.id]
+            ]
+        )
+
 
 class RowBuilder(object):
 
@@ -137,7 +143,7 @@ class RowBuilder(object):
                 else:
                     index_val = self.lp_model.row[row_id].get_index_values()
                     success = True
-                    for (i,r) in zip(index_val, index_values):
+                    for (i, r) in zip(index_val, index_values):
                         if i != r and r > -1:
                             success = False
                             break
@@ -161,13 +167,13 @@ class RowBuilder(object):
         self.lp_model.shop.model.lp_model.lp_model['add_row_coeff'].set(coefficients)
         if len(row_id) > 0:
             info = self[row_id].info()
-            self.lp_model.shop.model.lp_model.lp_model['add_row_rhs'].set(info['rhs'] if rhs == None else rhs)
-            self.lp_model.shop.model.lp_model.lp_model['add_row_sense'].set(info['sense'] if sense == None else sense)
+            self.lp_model.shop.model.lp_model.lp_model['add_row_rhs'].set(info['rhs'] if rhs is None else rhs)
+            self.lp_model.shop.model.lp_model.lp_model['add_row_sense'].set(info['sense'] if sense is None else sense)
         else:
-            self.lp_model.shop.model.lp_model.lp_model['add_row_rhs'].set(0.0 if rhs == None else rhs)
-            self.lp_model.shop.model.lp_model.lp_model['add_row_sense'].set(0 if sense == None else sense)
-        
+            self.lp_model.shop.model.lp_model.lp_model['add_row_rhs'].set(0.0 if rhs is None else rhs)
+            self.lp_model.shop.model.lp_model.lp_model['add_row_sense'].set(0 if sense is None else sense)
         return self.lp_model.shop.model.lp_model.lp_model['add_row_last'].get()
+
 
 class RowType(object):
 
@@ -189,7 +195,7 @@ class RowType(object):
             index_type = self.get_index_types()
             return self.lp_model.index_type.get_names()[index_type]
             # return self.lp_model.get_index_types()[index_type]
-    
+
     def __dir__(self) -> Sequence[str]:
         return ['id', 'name', 'index_types', 'index_type_names']
 
@@ -198,6 +204,7 @@ class RowType(object):
         index_type_cnt = self.lp_model._lp_model['row_type_index_type_cnt']
         index_type_val = self.lp_model._lp_model['row_type_index_type_val']
         return index_type_val[index_type_beg[self.id]:index_type_beg[self.id]+index_type_cnt[self.id]]
+
 
 class RowTypeBuilder(object):
 
