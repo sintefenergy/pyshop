@@ -8,7 +8,7 @@ here = pathlib.Path(__file__).parent.resolve()
 long_description = (here / 'README.md').read_text(encoding='utf-8')
 
 setup(name='sintef-pyshop',
-      version='1.0.0',
+      version='1.1.0',
       author='SINTEF Energy Research',
       description='Python interface to SHOP',
       long_description=long_description,
@@ -28,7 +28,7 @@ setup(name='sintef-pyshop',
           'Tracker': 'https://shop.sintef.energy/tickets',
       },
       classifiers=[
-          'Development Status :: 4 - Beta',
+          'Development Status :: 5 - Production/Stable',
           'License :: OSI Approved :: MIT License',
           'Intended Audience :: Developers',
           'Intended Audience :: End Users/Desktop',
