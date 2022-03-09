@@ -189,12 +189,12 @@ def set_attribute(shop_api, object_name, object_type, attribute_name, datatype, 
             shop_api.SetXyCurve(object_type, object_name, attribute_name, value['ref'], x, y)
     elif datatype == 'sy':
         if isinstance(value, pd.Series):
-            shop_api.SetSyCurve(object_type, object_name, attribute_name, value.index.values,
+            shop_api.SetSyCurve(object_type, object_name, attribute_name, value.index.to_list(),
                                 value.values)
         else:
             s = [s[0] for s in value['sy']]
             y = [x[1] for x in value['sy']]
-            shop_api.SetXyCurve(object_type, object_name, attribute_name, s, y)
+            shop_api.SetSyCurve(object_type, object_name, attribute_name, list(s), y)
     elif datatype == 'xy_array':
         if len(value) == 0:
             return
