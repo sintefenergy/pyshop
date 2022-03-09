@@ -1,5 +1,7 @@
 # pyshop
 Status:
+
+[![CI](https://github.com/sintef-energy/pyshop/actions/workflows/pytest.yml/badge.svg)](https://github.com/sintef-energy/pyshop/actions/workflows/pytest.yml)
 [![codecov](https://codecov.io/gh/sintef-energy/pyshop/branch/main/graph/badge.svg?token=FYASF5O90D)](https://codecov.io/gh/sintef-energy/pyshop/branch/main/)
 
 The nicest python interface to SHOP!
