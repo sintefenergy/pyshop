@@ -36,6 +36,17 @@ def get_attribute_value(shop_api:ShopApi, object_name:str, object_type:str, attr
             else:
                 xy = [[x, y] for x, y in zip(x, y)]
                 value = dict(ref=ref, xy=xy)
+    elif datatype == 'sy':
+        s = shop_api.GetSyCurveS(object_type, object_name, attribute_name)
+        y = np.fromiter(shop_api.GetSyCurveY(object_type, object_name, attribute_name), float)
+        if y.size == 0:
+            value = None
+        else:
+            if dataframe:
+                value = pd.Series(y, index=s)
+            else:
+                sy = [[s, y] for s, y in zip(s, y)]
+                value = dict(sy=sy)
     elif datatype == 'xy_array':
         refs = np.fromiter(shop_api.GetXyCurveArrayReferences(object_type, object_name, attribute_name), float)
         n = np.fromiter(shop_api.GetXyCurveArrayNPoints(object_type, object_name, attribute_name), int)
@@ -178,6 +189,14 @@ def set_attribute(shop_api:ShopApi, object_name:str, object_type:str, attribute_
             x = [x[0] for x in value['xy']]
             y = [x[1] for x in value['xy']]
             shop_api.SetXyCurve(object_type, object_name, attribute_name, value['ref'], x, y)
+    elif datatype == 'sy':
+        if isinstance(value, pd.Series):
+            shop_api.SetSyCurve(object_type, object_name, attribute_name, value.index.to_list(),
+                                value.values)
+        else:
+            s = [s[0] for s in value['sy']]
+            y = [x[1] for x in value['sy']]
+            shop_api.SetSyCurve(object_type, object_name, attribute_name, list(s), y)
     elif datatype == 'xy_array':
         if len(value) == 0:
             return
