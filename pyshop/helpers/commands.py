@@ -1,7 +1,8 @@
 import re
+from typing import Dict, List
+from .typing_annotations import CommandOptions
 
-
-def get_commands_from_file(command_file_string):
+def get_commands_from_file(command_file_string:str) -> List[Dict[str,CommandOptions]]:
     # Split file into lines
     lines = re.split('\n+|\r+', command_file_string)
     entries = []

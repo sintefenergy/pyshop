@@ -1,5 +1,4 @@
 from distutils.core import setup
-import sys
 import pathlib
 
 here = pathlib.Path(__file__).parent.resolve()

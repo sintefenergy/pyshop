@@ -1,4 +1,9 @@
 # pyshop
+Status:
+
+[![CI](https://github.com/sintef-energy/pyshop/actions/workflows/pytest.yml/badge.svg)](https://github.com/sintef-energy/pyshop/actions/workflows/pytest.yml)
+[![codecov](https://codecov.io/gh/sintef-energy/pyshop/branch/main/graph/badge.svg?token=FYASF5O90D)](https://codecov.io/gh/sintef-energy/pyshop/branch/main/)
+
 The nicest python interface to SHOP!
 
 SHOP (Short-term Hydro Operation Planning) is a modeling tool for short-term hydro operation planning developed by SINTEF Energy Research in Trondheim, Norway. SHOP is used for both scientific and commerical purposes, please visit the [SHOP home page](https://www.sintef.no/en/software/shop/) for further information and inquiries regarding access and use.
