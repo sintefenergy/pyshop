@@ -13,6 +13,8 @@ class ShopApiMock:
         'GetStringArray': ['abc', 'def'],
         'GetXyCurveX': [0, 1],
         'GetXyCurveY': [0.0, 1.1],
+        'GetSyCurveS': ['s1', 's2'],
+        'GetSyCurveY': [0.0, 1.1],
         'GetXyCurveReference': 0.0,
         'GetXyCurveArrayReferences': [0.0, 10.0],
         'GetXyCurveArrayNPoints': [2, 3],
@@ -88,6 +90,11 @@ class TestGetAttribute:
         assert (value.values == self.shop_api['GetXyCurveY']).all()
         assert value.name == self.shop_api['GetXyCurveReference']
 
+    def test_get_sy(self):
+        value = get_attribute_value(self.shop_api, 'obj_name', 'obj_type', 'attr_name', 'sy')
+        assert (value.index == self.shop_api['GetSyCurveS']).all()
+        assert (value.values == self.shop_api['GetSyCurveY']).all()
+
     def test_get_xy_array(self):
         value = get_attribute_value(self.shop_api, 'obj_name', 'obj_type', 'attr_name', 'xy_array')
         for i, n in enumerate(self.shop_api['GetXyCurveArrayNPoints']):
@@ -116,6 +123,15 @@ class TestSetAttribute:
         assert res[3] == self.shop_api['GetXyCurveReference']
         assert (res[4] == self.shop_api['GetXyCurveX']).all()
         assert (res[5] == self.shop_api['GetXyCurveY']).all()
+
+    def test_set_sy(self):
+        sy_val = pd.Series(
+            self.shop_api['GetSyCurveY'], index=self.shop_api['GetSyCurveS']
+        )
+        set_attribute(self.shop_api, 'obj_name', 'obj_type', 'attr_name', 'sy', sy_val)
+        res = self.shop_api['SetSyCurve']
+        assert res[3] == self.shop_api['GetSyCurveS']
+        assert (res[4] == self.shop_api['GetSyCurveY']).all()
 
     def test_set_xy_array(self):
         xy_array_val = []
