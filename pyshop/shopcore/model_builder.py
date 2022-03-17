@@ -19,14 +19,14 @@ class ModelBuilderType(object):
     _all_types:List[str]
     _types:Dict[str,'ModelBuilderObject']
 
-    def __init__(self, shop_api:ShopApi) -> None:
+    def __init__(self, shop_api:ShopApi) -> None: # pragma: no cover
         self._shop_api = shop_api
         self._all_types = [object_type for object_type in shop_api.GetObjectTypeNames()
                            if shop_api.GetObjectInfo(object_type, 'isInput')]
         self._types = {}
         self.update()
 
-    def __getattr__(self, object_type:str) -> Optional['ModelBuilderObject']:
+    def __getattr__(self, object_type:str) -> Optional['ModelBuilderObject']: # pragma: no cover
         # Recursion guard
         if is_private_attr(object_type):
             return
@@ -35,14 +35,14 @@ class ModelBuilderType(object):
             self.update()
         return self._types[object_type]
 
-    def __dir__(self) -> List[str]:
+    def __dir__(self) -> List[str]: # pragma: no cover
         return [object_type for object_type in self._types] + [x for x in super().__dir__() if x[0] != '_'
                                                                and x not in self._types]
 
-    def __getitem__(self, item:str) -> Optional['ModelBuilderObject']:
+    def __getitem__(self, item:str) -> Optional['ModelBuilderObject']: # pragma: no cover
         return self.__getattr__(item)
 
-    def update(self) -> None:
+    def update(self) -> None: # pragma: no cover
         objects = {object_type: [] for object_type in self._all_types}
         for object_name, object_type in zip(self._shop_api.GetObjectNamesInSystem(),
                                             self._shop_api.GetObjectTypesInSystem()):
@@ -118,7 +118,8 @@ class ModelBuilderType(object):
             dot.render(filename + '.gv', view=True)
         return dot
 
-class ModelBuilderObjectIterator(object):
+
+class ModelBuilderObjectIterator(object): # pragma: no cover
     
     _model_builder_object: 'ModelBuilderObject'
     _index: int
@@ -135,7 +136,7 @@ class ModelBuilderObjectIterator(object):
         raise StopIteration
 
 
-class ModelBuilderObject(object):
+class ModelBuilderObject(object): # pragma: no cover
 
     _shop_api:ShopApi
     _parent:'ModelBuilderType'
@@ -189,8 +190,9 @@ class ModelBuilderObject(object):
 
     def __iter__(self) -> ModelBuilderObjectIterator:
         return ModelBuilderObjectIterator(self)
-        
-class AttributeBuilderObject(object):
+
+
+class AttributeBuilderObject(object): # pragma: no cover
 
     _shop_api:ShopApi
     _type:str
@@ -333,7 +335,7 @@ class AttributeBuilderObject(object):
         return self._type
 
 
-class AttributeObject(object):
+class AttributeObject(object): # pragma: no cover
 
     _shop_api:ShopApi
     _type:str
@@ -405,7 +407,7 @@ class AttributeObject(object):
         return get_attribute_info(self._shop_api, self._type, self._attr_name)
 
 
-class ConnectToObjectType(object):
+class ConnectToObjectType(object): # pragma: no cover
 
     _shop_api:ShopApi
     _from_type:str
@@ -451,7 +453,7 @@ class ConnectToObjectType(object):
         return to_type
 
 
-class ConnectToObject(object):
+class ConnectToObject(object): # pragma: no cover
 
     _shop_api:ShopApi
     _type:str
@@ -484,7 +486,7 @@ class ConnectToObject(object):
         return self.__getattr__(item)
 
 
-class Connection(object):
+class Connection(object): # pragma: no cover
 
     _shop_api:ShopApi
     _from_type:str
