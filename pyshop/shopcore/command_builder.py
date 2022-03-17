@@ -1,7 +1,8 @@
 from typing import Dict, List
 from ..helpers.typing_annotations import CommandOptions, CommandValues, ShopApi
 
-class OptionBuilder(object):
+
+class OptionBuilder(object): # pragma: no cover
 
     _shop_api:ShopApi
     _commands:Dict[str,str]
@@ -26,7 +27,8 @@ class OptionBuilder(object):
         values = filter(lambda x: x, values)
         return self._shop_api.ExecuteCommand(self._commands[self._command], list(options), list(values))
 
-class CommandBuilder(object):
+
+class CommandBuilder(object): # pragma: no cover
 
     _shop_api:ShopApi
     _commands:Dict[str,str]
@@ -40,6 +42,7 @@ class CommandBuilder(object):
 
     def __dir__(self) -> List[str]:
         return list(self._commands.keys())
+
 
 def get_derived_command_key(original_command:str, command_dict:Dict[str,str]) -> str:
     derived_command = original_command
