@@ -136,3 +136,6 @@ pyshop/examples/res.txt
 
 #Visual studio
 .vs
+
+#VS code
+.vscode
