@@ -265,7 +265,7 @@ def set_attribute(shop_api:ShopApi, object_name:str, object_type:str, attribute_
                     new_row = pd.DataFrame(df[-1:].values, index=[time['endtime']], columns=df.columns)
                 else:
                     new_row = pd.Series(df[-1], index=[time['endtime']])
-                df = df.append(new_row)
+                df = pd.concat([df, new_row])
             df = df.asfreq(freq=freq, method='ffill')
             df = df[:-1]
             time_resolution = pd.Series(data=shop_api.GetTimeResolutionY(), index=shop_api.GetTimeResolutionT())
