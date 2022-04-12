@@ -84,6 +84,9 @@ class ModelBuilderType(object):
                 elif object_type == 'tunnel':
                     shape = 'box'
                     bgcolor = 'gray83'
+                elif object_type == 'river':
+                    shape = 'invtrapezium'
+                    bgcolor = 'lightsteelblue2'
                 dot.node('{0}_{1}'.format(object_type, name), label=name, shape=shape, style='filled',
                          fillcolor=bgcolor)
                 if subgraph is not None:
