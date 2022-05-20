@@ -143,6 +143,7 @@ class VarBuilder(object):
             self.lp_model.shop.model.lp_model.lp_model['add_var_lb'].set(-1e20 if lb is None else lb)
             self.lp_model.shop.model.lp_model.lp_model['add_var_cc'].set(0.0 if cc is None else cc)
             self.lp_model.shop.model.lp_model.lp_model['add_var_bin'].set(0 if bin is None else bin)
+        self.lp_model.shop.set_lp_var([], [])
 
         return self.lp_model.shop.model.lp_model.lp_model['add_var_last'].get()
 

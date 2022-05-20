@@ -172,6 +172,8 @@ class RowBuilder(object):
         else:
             self.lp_model.shop.model.lp_model.lp_model['add_row_rhs'].set(0.0 if rhs is None else rhs)
             self.lp_model.shop.model.lp_model.lp_model['add_row_sense'].set(0 if sense is None else sense)
+        self.lp_model.shop.set_lp_row()
+        
         return self.lp_model.shop.model.lp_model.lp_model['add_row_last'].get()
 
 
