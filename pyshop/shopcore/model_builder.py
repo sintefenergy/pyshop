@@ -221,6 +221,8 @@ class AttributeBuilderObject(object): # pragma: no cover
             return AttributeObject(self._shop_api, self._type, self._name, attr_name, self.datatype_dict[attr_name])
         elif attr_name == 'generators' and self._type == 'plant':
             return self._get_generators()
+        elif attr_name == 'pumps' and self._type == 'plant':
+            return self._get_pumps()            
         elif attr_name == 'unit_combinations' and self._type == 'plant':
             return self._get_unit_combinations()
         else:
@@ -229,7 +231,7 @@ class AttributeBuilderObject(object): # pragma: no cover
     def __dir__(self) -> List[str]:
         dirs = [x for x in super().__dir__() if x[0] != '_'] + self._attr_names
         if self._type == 'plant':
-            return dirs + ['generators']
+            return dirs + ['generators','pumps','unit_combinations']
         else:
             return dirs
 
@@ -246,6 +248,17 @@ class AttributeBuilderObject(object): # pragma: no cover
             new_gen = AttributeBuilderObject(self._shop_api, 'generator', gen_name)
             gen_objects.append(new_gen)
         return gen_objects
+
+    def _get_pumps(self) -> List['AttributeBuilderObject']:
+        object_names = self._shop_api.GetObjectNamesInSystem()
+        object_types = self._shop_api.GetObjectTypesInSystem()
+        connected_indices = self._shop_api.GetRelations(self._type, self._name, 'connection_standard')
+        pump_names = [object_names[i] for i in connected_indices if object_types[i] == 'pump']
+        pump_objects = []
+        for pump_name in pump_names:
+            new_pump = AttributeBuilderObject(self._shop_api, 'pump', pump_name)
+            pump_objects.append(new_pump)
+        return pump_objects        
 
     def _get_unit_combinations(self) -> List['AttributeBuilderObject']:
         object_names = self._shop_api.GetObjectNamesInSystem()
