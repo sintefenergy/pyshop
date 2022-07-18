@@ -207,7 +207,7 @@ class ShopSession(object):
         elif yaml_string != '':
             self.shop_api.ReadYamlString(yaml_string)
 
-    def dump_yaml(self, file_path:str='', input_only:bool=False, compress_txy:bool=False, compress_connection:bool=False) -> str:
+    def dump_yaml(self, file_path:str='', input_only:bool=True, compress_txy:bool=True, compress_connection:bool=True) -> str:
         if file_path != '':
             self.shop_api.DumpYamlCase(file_path, input_only, compress_txy, compress_connection)
             return f'YAML case is dumped to the provided file path: "{file_path}"'
