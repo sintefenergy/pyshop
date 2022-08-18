@@ -1,10 +1,12 @@
 import json
+from logging.handlers import RotatingFileHandler
 import os
 import sys
 from typing import Dict, List, Optional, Callable
 import pandas as pd
 import numpy as np
 import requests
+import logging
 
 from .helpers.commands import get_commands_from_file
 from .helpers.time import get_shop_timestring
@@ -33,7 +35,7 @@ class ShopSession(object):
     _command:str
 
     def __init__(self, license_path:str = '', silent:bool = True, log_file:str = '', solver_path:str = '', suppress_log:bool = False,
-                 log_gets:bool = True, name:str = 'unnamed', id:int = 1, host:str = '', port:int = 8000) -> None:
+                 log_gets:bool = True, name:str = 'unnamed', id:int = 1, host:str = '', port:int = 8000, logger_enabled:bool = True) -> None:
         #Used by the SHOP rest APi 
         self._log_file = log_file
         self._name = name
@@ -85,6 +87,34 @@ class ShopSession(object):
                 self.shop_api = pb.ShopCore(silent_console, silent_log, log_file, log_gets)
             else:
                 self.shop_api = pb.ShopCore(silent_console, silent_log)
+            if logger_enabled:
+                # logger = logging.getLogger()
+                # logger.setLevel(logging.INFO)
+                # formatter = logging.Formatter('%(levelname)s %(asctime)s %(message)s')
+
+                # file_handler = logging.FileHandler(log_file)
+                # file_handler.setLevel(logging.INFO)
+                # file_handler.setFormatter(formatter)
+
+                # logger.addHandler(file_handler)
+                
+                logging.basicConfig(
+                    # filename=log_file if log_file else "shop_run.log",
+                    level=logging.INFO,
+                    format='%(levelname)s %(asctime)s %(message)s',
+                    handlers=[RotatingFileHandler('./shop_run.log', maxBytes=100000, backupCount=10)]
+                )
+                def logging_callback(msg: str, severity: str, id: str):
+                    # print(msg)
+                    msg = msg.strip().replace('\n', ' ')
+                    if severity == "INFO":
+                        logging.info(msg)
+                    elif severity == "WARNING":
+                        logging.warning(msg)
+                    elif severity == "ERROR":
+                        logging.error(msg)
+                        RuntimeError(msg)
+                self.shop_api.RegisterCallback(logging_callback, '1')
 
             # Override where SHOP will look for solver dlls
             if solver_path:
