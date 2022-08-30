@@ -218,8 +218,24 @@ class ShopSession(object):
         with open(os.path.join(folder, command_file), 'r', encoding='iso-8859-1') as run_file:
             file_string = run_file.read()
             run_commands = get_commands_from_file(file_string)
+        
         for command in run_commands:
-            self.shop_api.ExecuteCommand(command['command'], command['options'], command['values'])
+            command_text = command['command']
+            options = command['options']
+            values = command['values']
+
+            #Simply break on the quit command instead of destroying the session
+            if command_text == "q":
+                break
+            
+            #Reading input files should be done with proper API calls instead
+            if command_text in ["read model", "add model"]:
+                self.read_ascii_file(os.path.join(folder, values[0]))
+            elif command_text == "read yaml":
+                self.load_yaml(folder,values[0])
+            else:            
+                #Directly execute all other commands
+                self.shop_api.ExecuteCommand(command_text, options, values)
 
     def run_command_file_progress(self, folder:str, command_file:str) -> None:
         with open(os.path.join(folder, command_file), 'r', encoding='iso-8859-1') as run_file:

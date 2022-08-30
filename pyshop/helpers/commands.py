@@ -13,6 +13,8 @@ def get_commands_from_file(command_file_string:str) -> List[Dict[str,CommandOpti
         # Clean up
         entry = {}
         line = line.replace('/ ', '/')
+        #Only keep first part of line if comments are present after the command
+        line = line.split("#")[0].strip()
 
         # Split on whitespace
         split_line = re.split(r'\s+', line)
