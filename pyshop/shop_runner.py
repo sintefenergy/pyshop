@@ -214,7 +214,8 @@ class ShopSession(object):
         else:
             return self.shop_api.DumpYamlString(input_only, compress_txy, compress_connection)
 
-    def run_command_file(self, folder:str, command_file:str) -> None:
+    def run_command_file(self, folder:str, command_file:str, break_before_opt:bool = False) -> None:
+        
         with open(os.path.join(folder, command_file), 'r', encoding='iso-8859-1') as run_file:
             file_string = run_file.read()
             run_commands = get_commands_from_file(file_string)
@@ -226,6 +227,10 @@ class ShopSession(object):
 
             #Simply break on the quit command instead of destroying the session
             if command_text == "q":
+                break
+            
+            #Stop before optimization begins if requested
+            if break_before_opt and command_text == "start sim":
                 break
             
             #Reading input files should be done with proper API calls instead
