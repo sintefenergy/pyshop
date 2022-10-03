@@ -33,14 +33,17 @@ class Var(object):
             index_values = self.get_index_values()
             return [self.lp_model.index_type[t].description[v] for (t, v) in zip(index_types, index_values)]
         elif attr in self.__dir__():
-            return self.lp_model._lp_model[attr][self.id]
+            try:
+                return self.lp_model._lp_model[attr][self.id]
+            except:
+                return None
         else:
             return None
 
     def __dir__(self) -> Sequence[str]:
         return np.append(
             ['id', 'type_id', 'type_name', 'type_abbrev', 'index_type_ids', 'index_type_names',
-                'index_values', 'index_descriptions', 'ub', 'lb', 'cc', 'bin'],
+                'index_values', 'index_descriptions', 'ub', 'lb', 'cc', 'bin', 'x'],
             super().__dir__()
         )
 
@@ -59,7 +62,8 @@ class Var(object):
             'ub': self.lp_model._lp_model['ub'][self.id],
             'lb': self.lp_model._lp_model['lb'][self.id],
             'cc': self.lp_model._lp_model['cc'][self.id],
-            'bin': self.lp_model._lp_model['bin'][self.id]
+            'bin': self.lp_model._lp_model['bin'][self.id],
+            'x': self.x
         }
 
     def format(self) -> str:

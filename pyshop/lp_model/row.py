@@ -37,14 +37,17 @@ class Row(object):
             var_coeffs = lp_model['AA'][ij]
             return [(i, c) for (i, c) in zip(var_ids, var_coeffs)]
         elif attr in self.__dir__():
-            return self.lp_model._lp_model[attr][self.id]
+            try:
+                return self.lp_model._lp_model[attr][self.id]
+            except:
+                return None
         else:
             return None
 
     def __dir__(self) -> Sequence[str]:
         return np.append(
             ['id', 'type_id', 'type_name', 'index_type_ids', 'index_type_names',
-                'index_values', 'index_descriptions', 'vars', 'rhs', 'sense'],
+                'index_values', 'index_descriptions', 'vars', 'rhs', 'sense', 'dual'],
             super(Row, self).__dir__()
         )
 
@@ -67,7 +70,8 @@ class Row(object):
             'index_descriptions': [self.lp_model.index_type[t].description[v] for (t, v) in zip(index_type_ids, index_values)],
             'vars': [(i, c) for (i, c) in zip(var_ids, var_coeffs)],
             'rhs': rhs,
-            'sense': sense
+            'sense': sense,
+            'dual': self.dual
         }
 
     def format(self) -> str:
