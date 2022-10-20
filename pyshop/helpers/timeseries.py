@@ -64,7 +64,7 @@ def resample_resolution(time:Dict, df:DataFrameOrSeries, delta:float, time_resol
     compressed_resolution_format = remove_consecutive_duplicates(resolution_format)
 
     # Extract the different time resolutions and their respective time of enactment
-    resolution_tuples = list(compressed_resolution_format.iteritems())
+    resolution_tuples = list(compressed_resolution_format.items())
 
     # Add a dummy time at the optimization end time to serve as a well defined bound
     resolution = resolution_tuples[-1][1]
