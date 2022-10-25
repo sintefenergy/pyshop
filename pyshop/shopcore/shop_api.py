@@ -88,39 +88,26 @@ def get_attribute_value(shop_api:ShopApi, object_name:str, object_type:str, attr
 
 
 def get_xyt_attribute(shop_api:ShopApi, object_name:str, object_type:str, attribute_name:str, start:pd.Timestamp, end:pd.Timestamp, dataframe:bool=True) -> List[XyType]:
-    # Get time delta from time unit
-    unit = shop_api.GetTimeUnit()
-    delta = pd.Timedelta(minutes=1)
-    resolution = shop_api.GetTimeResolutionY()[0]
-    if unit == 'hour':
-        delta = pd.Timedelta(hours=1)
-    elif unit == 'second':
-        delta = pd.Timedelta(seconds=1)
-        print('WARNING: Xyt series are not supported when the time unit is set to "second". '
-              'This will likely not work as intended')
 
-    # Identify the indices that should be extracted from the xyt series
     tz_name = get_shop_timzone_name(shop_api)
-    shop_start_time = get_shop_datetime(shop_api.GetStartTime(), tz_name)
-    shop_end_time = get_shop_datetime(shop_api.GetEndTime(), tz_name)
-    min_time_index = int((start - shop_start_time)/(resolution*delta))
-    max_time_index = int((end - shop_start_time)/(resolution*delta))
+    
+    #Get the time stamp for each xy function in the xyt attribute
+    try:
+        time_strings = shop_api.GetXyTCurveTimeStrings(object_type, object_name, attribute_name)
+        time_list = [get_shop_datetime(t, tz_name) for t in time_strings]
+    #To keep backwards compatibility before GetXyTCurveTimeStrings was implemented in the API. Get the time indices instead
+    except AttributeError:
+        time_indices = shop_api.GetXyTCurveTimes(object_type, object_name, attribute_name)
+        shop_start_time = get_shop_datetime(shop_api.GetStartTime(), tz_name)
 
-    # Handle illegal bounds
-    min_time_index = max(min_time_index, 0)
+        time_unit = shop_api.GetTimeUnit()
+        delta = pd.Timedelta(hours=1)
+        if time_unit == 'minute':
+            delta = pd.Timedelta(minutes=1)
+        elif time_unit == 'second':
+            delta = pd.Timedelta(seconds=1)
 
-    # The time optimization is defined with an excluded end bound, while xyt retrieval operates with an included end
-    # This means that the largest time index for xyt is that of the optimization end time - 1
-    max_possible_index = int((shop_end_time - shop_start_time)/(resolution * delta)) - 1
-    max_time_index = min(max_time_index, max_possible_index)
-
-    # This is only needed if it is possible to have missing time steps in the XyT curve, otherwise it can be
-    # replaced by a simple range
-    xyt_time_indices = shop_api.GetXyTCurveTimes(object_type, object_name, attribute_name)
-    time_list = []
-    for xyt_time_index in xyt_time_indices:
-        if min_time_index <= xyt_time_index <= max_time_index:
-            time_list.append(shop_start_time + xyt_time_index*delta*resolution)
+        time_list = [shop_start_time + t*delta for t in time_indices]
 
     x = np.fromiter(shop_api.GetXyTCurveX(object_type, object_name, attribute_name,
                                           get_shop_timestring(start), get_shop_timestring(end)), float)
@@ -128,12 +115,18 @@ def get_xyt_attribute(shop_api:ShopApi, object_name:str, object_type:str, attrib
                                           get_shop_timestring(start), get_shop_timestring(end)), float)
     n = np.fromiter(shop_api.GetXyTCurveN(object_type, object_name, attribute_name,
                                           get_shop_timestring(start), get_shop_timestring(end)), int)
+    
+    #Before SHOP 14.4.3.0, the function GetXyTCurveN returned a value for every time step in the optimization.
+    #This can result in many 0 values for time steps where there is no xy table defined. 
+    #Remove these zeros since the x and y arrays only return values for times where there is an xy
+    n = n[n != 0]
+    
     value = []
     offset = 0
     if n.size == 0:
         value = None
     else:
-        if dataframe:
+        if dataframe:            
             for n_items, time in zip(n, time_list):
                 df = pd.Series(y[offset:offset + n_items], index=x[offset:offset + n_items], name=time)
                 value.append(df)
@@ -224,7 +217,40 @@ def set_attribute(shop_api:ShopApi, object_name:str, object_type:str, attribute_
                 y = np.append(y, [x[1] for x in xy['xy']])
         shop_api.SetXyCurveArray(object_type, object_name, attribute_name, ref, n, x, y)
     elif datatype == 'xyt':
-        return
+        if len(value) == 0:
+            return
+
+        #XYT curves are XY curves specified for different times
+        #Convert times from timestamp to time strings in SHOP format
+        times = []
+        x = np.array([])
+        y = np.array([])
+        n = np.array([])
+        if isinstance(value[0], pd.DataFrame):
+            for df in value:
+                t = pd.Timestamp(str(df.columns[0]))
+                times.append(get_shop_timestring(t))
+                n = np.append(n, df.size)
+                x = np.append(x, df.index.values)
+                y = np.append(y, df.iloc[:, 0].values)
+        elif isinstance(value[0], pd.Series):
+            for ser in value:
+                t = pd.Timestamp(str(ser.name))
+                times.append(get_shop_timestring(t))
+                n = np.append(n, ser.size)
+                x = np.append(x, ser.index.values)
+                y = np.append(y, ser.values)
+        else:
+            for xy in value:
+                t = pd.Timestamp(str(xy['time']))
+                times.append(get_shop_timestring(t))
+                n = np.append(n, len(xy['xy']))
+                x = np.append(x, [x[0] for x in xy['xy']])
+                y = np.append(y, [x[1] for x in xy['xy']])
+        
+        #Note that times is a regular python list while n, x, and y are np arrays
+        shop_api.SetXyTCurve(object_type, object_name, attribute_name, times, n, x, y)        
+
     elif datatype == 'txy':
         time = get_time_resolution(shop_api)
 
