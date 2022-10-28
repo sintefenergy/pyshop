@@ -214,7 +214,7 @@ class ShopSession(object):
         else:
             return self.shop_api.DumpYamlString(input_only, compress_txy, compress_connection)
 
-    def run_command_file(self, folder:str, command_file:str, break_before_opt:bool = False) -> None:
+    def run_command_file(self, folder:str, command_file:str, break_before_opt:bool = False, skip_reading_input:bool = False) -> None:
         
         with open(os.path.join(folder, command_file), 'r', encoding='iso-8859-1') as run_file:
             file_string = run_file.read()
@@ -235,9 +235,11 @@ class ShopSession(object):
             
             #Reading input files should be done with proper API calls instead
             if command_text in ["read model", "add model"]:
-                self.read_ascii_file(os.path.join(folder, values[0]))
+                if not skip_reading_input:
+                    self.read_ascii_file(os.path.join(folder, values[0]))
             elif command_text == "read yaml":
-                self.load_yaml(folder,values[0])
+                if not skip_reading_input:
+                    self.load_yaml(folder,values[0])
             else:            
                 #Directly execute all other commands
                 self.shop_api.ExecuteCommand(command_text, options, values)
@@ -262,3 +264,24 @@ class ShopSession(object):
     def get_shop_version(self) -> str:
         version_string = self.shop_api.GetVersionString()
         return version_string.split()[0]
+
+    def get_license_info(self) -> Dict[str,List[str]]:
+        #Returns a dictionary where the keys are the license status and the values are lists of functionality
+        try:
+            license_list = self.shop_api.GetLicenseInfo()
+        except AttributeError:
+            print("License info can only be retrieved for SHOP 14.5.0.0 and newer")
+            return {}
+
+        license_dict = {}
+        for l in license_list:
+            l = l.split(":")
+            name = l[0]
+            info = l[1]
+
+            if info not in license_dict.keys():
+                license_dict[info] = [name]
+            else:
+                license_dict[info].append(name)
+
+        return license_dict
