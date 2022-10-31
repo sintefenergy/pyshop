@@ -33,7 +33,7 @@ class ShopSession(object):
     _command:str
 
     def __init__(self, license_path:str = '', silent:bool = True, log_file:str = '', solver_path:str = '', suppress_log:bool = False,
-                 log_gets:bool = True, name:str = 'unnamed', id:int = 1, host:str = '', port:int = 8000) -> None:
+                 log_gets:bool = False, name:str = 'unnamed', id:int = 1, host:str = '', port:int = 8000) -> None:
         #Used by the SHOP rest APi 
         self._log_file = log_file
         self._name = name
