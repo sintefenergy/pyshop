@@ -14,7 +14,7 @@ from .shopcore.command_builder import CommandBuilder, get_derived_command_key
 from .shopcore.shop_api import get_time_resolution
 from .shopcore.shop_rest import ShopRestNative
 from .lp_model.lp_model import LpModelBuilder
-
+from .shopcore.script_generator import write_pyshop_model_file
 
 class ShopSession(object):
     # Class for handling a SHOP session through the python API.
@@ -213,6 +213,10 @@ class ShopSession(object):
             return f'YAML case is dumped to the provided file path: "{file_path}"'
         else:
             return self.shop_api.DumpYamlString(input_only, compress_txy, compress_connection)
+
+    def dump_pyshop(self, file_path:str, static_data_only:bool=False) -> None:
+        
+        write_pyshop_model_file(file_path,self.shop_api,static_data_only)
 
     def run_command_file(self, folder:str, command_file:str, break_before_opt:bool = False, skip_reading_input:bool = False) -> None:
         
