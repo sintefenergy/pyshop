@@ -14,19 +14,20 @@ def write_pyshop_model_file(file_path:str, shop_api:ShopApi, static_data_only:bo
             f.write("\n")
 
             #Init ShopSession
-            f.write("shop = ShopSession()\n\n")
+            f.write("def get_model() -> ShopSession:\n\n")
+            f.write("    shop = ShopSession()\n\n")
 
             #Set time resolution
             time_res = get_time_resolution(shop_api)
-            f.write(f"starttime = Timestamp('{time_res['starttime']}')\n")
-            f.write(f"endtime = Timestamp('{time_res['endtime']}')\n")
+            f.write(f"    starttime = Timestamp('{time_res['starttime']}')\n")
+            f.write(f"    endtime = Timestamp('{time_res['endtime']}')\n")
             step_length = remove_consecutive_duplicates(time_res['timeresolution'])
             t = list(step_length.index)
             y = list(step_length.values)
-            f.write(f"t = {t}\n")
-            f.write(f"y = {y}\n")
-            f.write(f"step_length = pd.Series(y,index=t)\n")
-            f.write(f"shop.set_time_resolution(starttime, endtime, '{time_res['timeunit']}', step_length)\n")
+            f.write(f"    t = {t}\n")
+            f.write(f"    y = {y}\n")
+            f.write(f"    step_length = pd.Series(y,index=t)\n")
+            f.write(f"    shop.set_time_resolution(starttime, endtime, '{time_res['timeunit']}', step_length)\n")
             f.write("\n")
 
             all_types = shop_api.GetObjectTypesInSystem()
@@ -38,14 +39,14 @@ def write_pyshop_model_file(file_path:str, shop_api:ShopApi, static_data_only:bo
 
             #Save a list of all 'active' objects with attributes to write
             objects = []
-            for type in unique_types:
+            for obj_type in unique_types:
                 
                 #Always skip the scenario object if there is only one of them
-                if type == "scenario" and all_types.count("scenario") == 1:
+                if obj_type == "scenario" and all_types.count("scenario") == 1:
                     continue
                 
-                attributes = shop_api.GetObjectTypeAttributeNames(type)
-                datatypes = shop_api.GetObjectTypeAttributeDatatypes(type)
+                attributes = shop_api.GetObjectTypeAttributeNames(obj_type)
+                datatypes = shop_api.GetObjectTypeAttributeDatatypes(obj_type)
 
                 input_attributes = []
                 input_datatypes = []
@@ -56,17 +57,17 @@ def write_pyshop_model_file(file_path:str, shop_api:ShopApi, static_data_only:bo
                         continue
 
                     #Don't include output attributes
-                    if shop_api.GetAttributeInfo(type, attr, "isInput") == "False":
+                    if shop_api.GetAttributeInfo(obj_type, attr, "isInput") == "False":
                         continue
 
                     #Don't include internal attributes
-                    if "INTERNAL" in shop_api.GetAttributeInfo(type, attr, "licenseName"):
+                    if "INTERNAL" in shop_api.GetAttributeInfo(obj_type, attr, "licenseName"):
                         continue
 
                     input_attributes.append(attr)
                     input_datatypes.append(dtype)
 
-                obj_names = [name for name,obj_type in zip(all_names,all_types) if obj_type==type]
+                obj_names = [name for name,other_type in zip(all_names,all_types) if other_type==obj_type]
 
                 for i,name in enumerate(obj_names):
 
@@ -76,10 +77,10 @@ def write_pyshop_model_file(file_path:str, shop_api:ShopApi, static_data_only:bo
                     for attr,dtype in zip(input_attributes,input_datatypes):
                         
                         #Skip attributes that are default for the object
-                        if shop_api.AttributeIsDefault(type,name,attr):
+                        if shop_api.AttributeIsDefault(obj_type,name,attr):
                             continue             
 
-                        val = get_attribute_value(shop_api,name,type,attr,dtype)
+                        val = get_attribute_value(shop_api,name,obj_type,attr,dtype)
                         
                         #Skip attributes that were actually not active
                         if val is None:
@@ -90,15 +91,15 @@ def write_pyshop_model_file(file_path:str, shop_api:ShopApi, static_data_only:bo
                         active_attribute_datatypes.append(dtype)
 
                     #Add another active object if there is at least one active input attribute OR the object is an (empty) input object
-                    if len(active_attributes) > 0 or shop_api.GetObjectInfo(type,"isInput") == "True":
+                    if len(active_attributes) > 0 or shop_api.GetObjectInfo(obj_type,"isInput") == "True":
                         obj = {}
-                        obj["type"] = type
+                        obj["type"] = obj_type
                         obj["name"] = name
                         clean_name = name.lower()
                         clean_name = clean_name.replace("æ","ae")
                         clean_name = clean_name.replace("ø","oe")
                         clean_name = clean_name.replace("å","aa")
-                        obj["code_name"] = f"{type}_{clean_name}"
+                        obj["code_name"] = f"{obj_type}_{clean_name}"
                         obj["attributes"] = active_attributes
                         obj["attribute_names"] = active_attribute_names
                         obj["attribute_datatypes"] = active_attribute_datatypes                     
@@ -108,58 +109,58 @@ def write_pyshop_model_file(file_path:str, shop_api:ShopApi, static_data_only:bo
             for obj in objects:
                            
                 var_name = obj["code_name"]
-                type = obj["type"]
+                obj_type = obj["type"]
                 name = obj["name"]
                 
                 #Create or retrieve the object depending on if it is an input type or not
-                if shop_api.GetObjectInfo(obj["type"],"isInput") == "True":
-                    f.write(f"{var_name} = shop.model.{type}.add_object('{name}')\n")
+                if shop_api.GetObjectInfo(obj_type,"isInput") == "True":
+                    f.write(f"    {var_name} = shop.model.{obj_type}.add_object('{name}')\n")
                 else:
-                    f.write(f"{var_name} = shop.model.{type}['{name}']\n")
+                    f.write(f"    {var_name} = shop.model.{obj_type}['{name}']\n")
 
                 #Set all active attributes
                 for val,attr,dtype in zip(obj["attributes"],obj["attribute_names"],obj["attribute_datatypes"]):
 
                     if dtype == "int" or dtype == "double" or dtype == "int_array" or dtype == "double_array":
-                        f.write(f"{var_name}.{attr}.set({val})\n")
+                        f.write(f"    {var_name}.{attr}.set({val})\n")
                     elif dtype == "string":
-                        f.write(f"{var_name}.{attr}.set('{val}')\n")
+                        f.write(f"    {var_name}.{attr}.set('{val}')\n")
                     elif dtype == "string_array":
                         input_list = f"['{val[0]}'"
                         for v in val[1:]:
                             input_list += f", '{v}'"
                         input_list += "]\n"
-                        f.write(f"{var_name}.{attr}.set({input_list})\n")           
+                        f.write(f"    {var_name}.{attr}.set({input_list})\n")           
                     elif dtype == "sy":
-                        f.write(f"s = {list(val.index)}\n")
-                        f.write(f"y = {list(val.values)}\n")
-                        f.write(f"{var_name}.{attr}.set(pd.Series(y,index=s))\n")                                
+                        f.write(f"    s = {list(val.index)}\n")
+                        f.write(f"    y = {list(val.values)}\n")
+                        f.write(f"    {var_name}.{attr}.set(pd.Series(y,index=s))\n")                                
                     elif dtype == "xy":
-                        f.write(f"x = {list(val.index)}\n")
-                        f.write(f"y = {list(val.values)}\n")
-                        f.write(f"{var_name}.{attr}.set(pd.Series(y,index=x,name={val.name}))\n")    
+                        f.write(f"    x = {list(val.index)}\n")
+                        f.write(f"    y = {list(val.values)}\n")
+                        f.write(f"    {var_name}.{attr}.set(pd.Series(y,index=x,name={val.name}))\n")    
                     elif dtype == "xy_array":
-                        f.write("xy_curves = []\n")
+                        f.write("    xy_curves = []\n")
                         for xy in val:
-                            f.write(f"x = {list(xy.index)}\n")
-                            f.write(f"y = {list(xy.values)}\n")
-                            f.write(f"xy_curves.append(pd.Series(y,index=x,name={xy.name}))\n")
-                        f.write(f"{var_name}.{attr}.set(xy_curves)\n") 
+                            f.write(f"    x = {list(xy.index)}\n")
+                            f.write(f"    y = {list(xy.values)}\n")
+                            f.write(f"    xy_curves.append(pd.Series(y,index=x,name={xy.name}))\n")
+                        f.write(f"    {var_name}.{attr}.set(xy_curves)\n") 
                     elif dtype == "xyt":
-                        f.write("xyt = []\n")
+                        f.write("    xyt = []\n")
                         for xy in val:               
-                            f.write(f"x = {list(xy.index)}\n")
-                            f.write(f"y = {list(xy.values)}\n")
-                            f.write(f"xyt.append(pd.Series(y,index=x,name={xy.name}))\n")
-                        f.write(f"{var_name}.{attr}.set(xyt)\n")                                                                   
+                            f.write(f"    x = {list(xy.index)}\n")
+                            f.write(f"    y = {list(xy.values)}\n")
+                            f.write(f"    xyt.append(pd.Series(y,index=x,name={xy.name}))\n")
+                        f.write(f"    {var_name}.{attr}.set(xyt)\n")                                                                   
                     elif dtype == "txy":
                         val = remove_consecutive_duplicates(val)
                         if len(val.values) > 1:
-                            f.write(f"t = {list(val.index)}\n")
-                            f.write(f"y = {list(val.values)}\n")
-                            f.write(f"{var_name}.{attr}.set(pd.Series(y,index=t))\n")                                                                   
+                            f.write(f"    t = {list(val.index)}\n")
+                            f.write(f"    y = {list(val.values)}\n")
+                            f.write(f"    {var_name}.{attr}.set(pd.Series(y,index=t))\n")                                                                   
                         else:
-                            f.write(f"{var_name}.{attr}.set({val.values[0]})\n")                                                                   
+                            f.write(f"    {var_name}.{attr}.set({val.values[0]})\n")                                                                   
                 
                 f.write("\n")
 
@@ -167,11 +168,11 @@ def write_pyshop_model_file(file_path:str, shop_api:ShopApi, static_data_only:bo
             connections = []
             connection_types = ["standard","bypass","spill"]
             
-            f.write("\n#Connections\n")
+            f.write("\n    #Connections\n")
             for obj in objects:
                 
                 up_name = obj["code_name"]
-                type = obj["type"]
+                obj_type = obj["type"]
                 name = obj["name"]
                 
                 wrote_connection = False
@@ -179,7 +180,7 @@ def write_pyshop_model_file(file_path:str, shop_api:ShopApi, static_data_only:bo
                 for ctype in connection_types:
                     
                     #Get connected objects for the connection type
-                    related_indices = shop_api.GetRelations(type, name, f"connection_{ctype}")
+                    related_indices = shop_api.GetRelations(obj_type, name, f"connection_{ctype}")
                 
                     for i in related_indices:   
 
@@ -214,11 +215,16 @@ def write_pyshop_model_file(file_path:str, shop_api:ShopApi, static_data_only:bo
                             connections.append({"from":obj,"to":rel_obj,"connection_type":ctype})
                             down_name = rel_obj["code_name"]
                             if ctype == "standard":
-                                f.write(f"{up_name}.connect_to({down_name})\n")
+                                f.write(f"    {up_name}.connect_to({down_name})\n")
                             else:
-                                f.write(f"{up_name}.connect_to({down_name},connection_type='{ctype}')\n")
+                                f.write(f"    {up_name}.connect_to({down_name},connection_type='{ctype}')\n")
                             wrote_connection = True
                 
                 #Add a new line when we are done with an object
                 if wrote_connection:
                     f.write("\n")
+
+            f.write("    return shop\n")
+            
+            f.write("\n")
+            f.write("shop = get_model()\n")
