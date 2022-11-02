@@ -11,12 +11,15 @@ def remove_consecutive_duplicates(df:DataFrameOrSeries) -> DataFrameOrSeries:
     """
     Compress timeseries by only keeping the first row of consecutive duplicates. This is done by comparing a copied
     DataFrame/Series that has been shifted by one, with the original, and only keeping the rows in which at least one
-    one column value is different from the previous row. The first row will always be kept
+    one column value is different from the previous row. The first row will always be kept. NaN values must be replaced
+    with a proper number before comparing since NaN != NaN. Undo the change before returning the compressed DataFrame/Series
     """
+    df = df.replace(np.nan, 1e40)
     if isinstance(df, pd.DataFrame):
         df = df.loc[(df.shift() != df).any(1)]
     else:
         df = df.loc[df.shift() != df]
+    df = df.replace(1e40, np.nan)
     return df
 
 
