@@ -237,7 +237,23 @@ def write_pyshop_model_file(file_path:str, shop_api:ShopApi, static_data_only:bo
                 if wrote_connection:
                     f.write("\n")
 
-            f.write("    return shop\n")
-            
+            f.write("    return shop\n\n")
+
+            #Create a function to run all the executed commands in this session
+            #There will probably be overlap with the values directly set on the global_settings object, this should not matter
+            commands = shop_api.GetExecutedCommands()
+            f.write("def run_commands(shop:ShopSession) -> None:\n\n")
+            if len(commands) == 0:
+                f.write("    #No commands to execute\n")
+                f.write("    pass\n")
+            else:
+                f.write("    #Commands to execute\n")
+                for c in commands:
+                    #Skip reading input commands since the model is already defined
+                    if "read model" in c or "add model" in c or "read yaml" in c:
+                        continue
+                    f.write(f"    shop.execute_full_command('{c}')\n")
+
             f.write("\n")
             f.write("shop = get_model()\n")
+            f.write("run_commands(shop)\n")
