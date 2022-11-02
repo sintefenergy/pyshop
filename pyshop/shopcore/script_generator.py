@@ -1,7 +1,6 @@
 from ..helpers.typing_annotations import ShopApi
 from ..helpers.timeseries import remove_consecutive_duplicates
 from .shop_api import get_time_resolution, get_attribute_value
-import pandas as pd
 
 def write_pyshop_model_file(file_path:str, shop_api:ShopApi, static_data_only:bool) -> None:
 
