@@ -1,6 +1,7 @@
 from ..helpers.typing_annotations import ShopApi
 from ..helpers.timeseries import remove_consecutive_duplicates
 from .shop_api import get_time_resolution, get_attribute_value
+import pandas as pd
 
 def write_pyshop_model_file(file_path:str, shop_api:ShopApi, static_data_only:bool) -> None:
 
@@ -10,24 +11,30 @@ def write_pyshop_model_file(file_path:str, shop_api:ShopApi, static_data_only:bo
             #Basic imports
             f.write("from pyshop import ShopSession\n")
             f.write("import pandas as pd\n")
+
+            #Manually import Timestamp from pandas so that Timestamp objects can be written directly to the file as strings
             f.write("from pandas import Timestamp\n")
+            #Manually import nan from numpy so that nan values in TXYs can be written directly to the file as strings
+            f.write("from numpy import nan\n")
             f.write("\n")
 
             #Init ShopSession
             f.write("def get_model() -> ShopSession:\n\n")
+            f.write("    #Initialize a new ShopSession\n")
             f.write("    shop = ShopSession()\n\n")
 
             #Set time resolution
             time_res = get_time_resolution(shop_api)
-            f.write(f"    starttime = Timestamp('{time_res['starttime']}')\n")
-            f.write(f"    endtime = Timestamp('{time_res['endtime']}')\n")
+            f.write("    #Set the time resolution of the optimization\n")
+            f.write(f"    start_time = Timestamp('{time_res['starttime']}')\n")
+            f.write(f"    end_time = Timestamp('{time_res['endtime']}')\n")
             step_length = remove_consecutive_duplicates(time_res['timeresolution'])
             t = list(step_length.index)
             y = list(step_length.values)
             f.write(f"    t = {t}\n")
             f.write(f"    y = {y}\n")
             f.write(f"    step_length = pd.Series(y,index=t)\n")
-            f.write(f"    shop.set_time_resolution(starttime, endtime, '{time_res['timeunit']}', step_length)\n")
+            f.write(f"    shop.set_time_resolution(start_time, end_time, '{time_res['timeunit']}', step_length)\n")
             f.write("\n")
 
             all_types = shop_api.GetObjectTypesInSystem()
@@ -95,17 +102,23 @@ def write_pyshop_model_file(file_path:str, shop_api:ShopApi, static_data_only:bo
                         obj = {}
                         obj["type"] = obj_type
                         obj["name"] = name
-                        clean_name = name.lower()
-                        clean_name = clean_name.replace("æ","ae")
-                        clean_name = clean_name.replace("ø","oe")
-                        clean_name = clean_name.replace("å","aa")
-                        obj["code_name"] = f"{obj_type}_{clean_name}"
+
+                        if obj_type == "global_settings":
+                            obj["code_name"] = "global_settings"
+                        else:
+                            clean_name = name.lower()
+                            clean_name = clean_name.replace("æ","ae")
+                            clean_name = clean_name.replace("ø","oe")
+                            clean_name = clean_name.replace("å","aa")
+                            obj["code_name"] = f"{obj_type}_{clean_name}"
+
                         obj["attributes"] = active_attributes
                         obj["attribute_names"] = active_attribute_names
                         obj["attribute_datatypes"] = active_attribute_datatypes                     
                         objects.append(obj)
                         
             #Write the active input attributes of each object to the file
+            f.write("    #Add all objects and set all attributes\n")
             for obj in objects:
                            
                 var_name = obj["code_name"]
@@ -121,7 +134,7 @@ def write_pyshop_model_file(file_path:str, shop_api:ShopApi, static_data_only:bo
                 #Set all active attributes
                 for val,attr,dtype in zip(obj["attributes"],obj["attribute_names"],obj["attribute_datatypes"]):
 
-                    if dtype == "int" or dtype == "double" or dtype == "int_array" or dtype == "double_array":
+                    if dtype in ["int", "double", "int_array", "double_array"]:
                         f.write(f"    {var_name}.{attr}.set({val})\n")
                     elif dtype == "string":
                         f.write(f"    {var_name}.{attr}.set('{val}')\n")
@@ -129,7 +142,7 @@ def write_pyshop_model_file(file_path:str, shop_api:ShopApi, static_data_only:bo
                         input_list = f"['{val[0]}'"
                         for v in val[1:]:
                             input_list += f", '{v}'"
-                        input_list += "]\n"
+                        input_list += "]"
                         f.write(f"    {var_name}.{attr}.set({input_list})\n")           
                     elif dtype == "sy":
                         f.write(f"    s = {list(val.index)}\n")
@@ -151,14 +164,15 @@ def write_pyshop_model_file(file_path:str, shop_api:ShopApi, static_data_only:bo
                         for xy in val:               
                             f.write(f"    x = {list(xy.index)}\n")
                             f.write(f"    y = {list(xy.values)}\n")
-                            f.write(f"    xyt.append(pd.Series(y,index=x,name={xy.name}))\n")
+                            f.write(f"    xyt.append(pd.Series(y,index=x,name=Timestamp('{str(xy.name)}')))\n")
                         f.write(f"    {var_name}.{attr}.set(xyt)\n")                                                                   
                     elif dtype == "txy":
                         val = remove_consecutive_duplicates(val)
                         if len(val.values) > 1:
                             f.write(f"    t = {list(val.index)}\n")
-                            f.write(f"    y = {list(val.values)}\n")
-                            f.write(f"    {var_name}.{attr}.set(pd.Series(y,index=t))\n")                                                                   
+                            f.write(f"    {attr} = {list(val.values)}\n")
+                            f.write(f"    {var_name}.{attr}.set(pd.Series({attr},index=t))\n")                  
+                        #Use simple syntax if there is only one value in the txy
                         else:
                             f.write(f"    {var_name}.{attr}.set({val.values[0]})\n")                                                                   
                 
@@ -168,7 +182,7 @@ def write_pyshop_model_file(file_path:str, shop_api:ShopApi, static_data_only:bo
             connections = []
             connection_types = ["standard","bypass","spill"]
             
-            f.write("\n    #Connections\n")
+            f.write("\n    #Connect all objects\n")
             for obj in objects:
                 
                 up_name = obj["code_name"]
@@ -220,7 +234,7 @@ def write_pyshop_model_file(file_path:str, shop_api:ShopApi, static_data_only:bo
                                 f.write(f"    {up_name}.connect_to({down_name},connection_type='{ctype}')\n")
                             wrote_connection = True
                 
-                #Add a new line when we are done with an object
+                #Add a new line when we are done writing connections for an object
                 if wrote_connection:
                     f.write("\n")
 
