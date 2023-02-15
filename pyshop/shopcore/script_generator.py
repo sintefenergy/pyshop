@@ -120,7 +120,7 @@ def write_pyshop_model_file(file_path:str, shop_api:ShopApi, static_data_only:bo
                         illegal_characters = '''~`!@#$%^&*-+={}[]|\/:;"'<>,.?()'''                           
                         clean_name = clean_name.translate({ord(i): None for i in illegal_characters})
                         
-                        obj["code_name"] = f"{obj_type}_{clean_name}"
+                        obj["code_name"] = f"{obj_type}_{clean_name}".replace("__","_")
 
                     obj["attributes"] = active_attributes
                     obj["attribute_names"] = active_attribute_names
