@@ -240,10 +240,10 @@ class ShopSession(object):
             #Reading input files should be done with proper API calls instead
             if command_text in ["read model", "add model"]:
                 if not skip_reading_input:
-                    self.read_ascii_file(os.path.join(folder, values[0]))
+                    self.read_ascii_file(os.path.join(folder, values[0].replace('"','')))
             elif command_text == "read yaml":
                 if not skip_reading_input:
-                    self.load_yaml(folder,values[0])
+                    self.load_yaml(folder,values[0].replace('"',''))
             else:            
                 #Directly execute all other commands
                 self.shop_api.ExecuteCommand(command_text, options, values)
