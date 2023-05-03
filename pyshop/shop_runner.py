@@ -289,3 +289,57 @@ class ShopSession(object):
                 license_dict[info].append(name)
 
         return license_dict
+    
+    def get_all_messages(self) -> dict[List[int], List[str], List[str], List[int]]:
+        try:
+            messageVector = self.shop_api.GetAllMessages()
+        except AttributeError:
+            print("Function GetAllMessages can only be used for SHOP 15.2.0.0 and newer")
+            return {}
+        
+        allCodes = []
+        allTexts = []
+        allTypes = []
+        allCallCounts = []
+
+        for i in messageVector:
+            allCodes.append(int(i[0]))
+            allTypes.append(i[1])
+            allTexts.append(i[2])
+            allCallCounts.append(i[3])
+        
+        myDict = {
+            "code": allCodes,
+            "type": allTypes,
+            "text": allTexts,
+            "callCount": allCallCounts
+        }
+
+        return myDict
+    
+    def get_message_type(self, messageCode) -> str:
+        allMessages = self.get_all_messages()
+
+        count = 0
+        for i in allMessages["code"]:
+            if i == messageCode:
+                return allMessages["type"][count]
+            count += 1
+    
+    def get_message_text(self, messageCode) -> str:
+        allMessages = self.get_all_messages()
+
+        count = 0
+        for i in allMessages["code"]:
+            if i == messageCode:
+                return allMessages["text"][count]
+            count += 1
+
+    def get_message_call_count(self, messageCode) -> int:
+        allMessages = self.get_all_messages()
+
+        count = 0
+        for i in allMessages["code"]:
+            if i == messageCode:
+                return allMessages["callCount"][count]
+            count += 1
