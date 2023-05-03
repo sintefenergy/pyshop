@@ -16,7 +16,7 @@ def remove_consecutive_duplicates(df:DataFrameOrSeries) -> DataFrameOrSeries:
     """
     df = df.replace(np.nan, 1e40)
     if isinstance(df, pd.DataFrame):
-        df = df.loc[(df.shift() != df).any(1)]
+        df = df.loc[(df.shift() != df).any(axis=1)]
     else:
         df = df.loc[df.shift() != df]
     df = df.replace(1e40, np.nan)

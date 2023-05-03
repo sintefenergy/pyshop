@@ -290,7 +290,7 @@ class ShopSession(object):
 
         return license_dict
     
-    def get_all_messages(self) -> dict[List[int], List[str], List[str], List[int]]:
+    def get_all_messages(self) -> Dict[List[int], List[str], List[str], List[int]]:
         try:
             messageVector = self.shop_api.GetAllMessages()
         except AttributeError:
