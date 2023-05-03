@@ -290,7 +290,7 @@ class ShopSession(object):
 
         return license_dict
     
-    def get_all_messages(self) -> Dict[List[int], List[str], List[str], List[int]]:
+    def get_all_messages(self) -> Dict[str, List[str]]:
         try:
             messageVector = self.shop_api.GetAllMessages()
         except AttributeError:
@@ -341,5 +341,5 @@ class ShopSession(object):
         count = 0
         for i in allMessages["code"]:
             if i == messageCode:
-                return allMessages["callCount"][count]
+                return  int(allMessages["callCount"][count])
             count += 1
