@@ -1,4 +1,4 @@
-from typing import List, Optional, Sequence, Union
+from typing import List, Optional, Sequence, Union, Dict
 import numpy as np
 from . import lp_model
 
@@ -12,7 +12,7 @@ class IndexType(object):
         self.lp_model = lp_model
         self.id = id
 
-    def __getattr__(self, attr:str) -> Union[int, str, Sequence[str]]:
+    def __getattr__(self, attr:str) -> Union[int, str, Sequence[str], Dict[int, str]]:
         if attr == 'id':
             return self.id
         elif attr == 'name':
@@ -20,7 +20,9 @@ class IndexType(object):
         elif attr == 'description':
             id_start = self.lp_model._lp_model['index_type_desc_beg'][self.id]
             id_count = self.lp_model._lp_model['index_type_desc_cnt'][self.id]
-            return self.lp_model._lp_model['index_type_desc_val'][id_start:id_start+id_count]
+            desc_vals = self.lp_model._lp_model['index_type_desc_val'][id_start:id_start+id_count]
+            desc_indices = self.lp_model._lp_model['index_type_desc_index'][id_start:id_start+id_count]
+            return {i: v for (i,v) in zip(desc_indices, desc_vals)}
 
     def __dir__(self) -> List[str]:
         return ['id', 'name', 'description']
