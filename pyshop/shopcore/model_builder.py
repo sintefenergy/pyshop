@@ -225,6 +225,8 @@ class AttributeBuilderObject(object): # pragma: no cover
             return self._get_pumps()            
         elif attr_name == 'unit_combinations' and self._type == 'plant':
             return self._get_unit_combinations()
+        elif attr_name == 'needle_combinations' and self._type == 'generator':
+            return self._get_needle_combinations()        
         else:
             raise ValueError(f'Unknown attribute: "{attr_name}" for "{self._name}" ({self._type})')
 
@@ -270,6 +272,17 @@ class AttributeBuilderObject(object): # pragma: no cover
             new_comb = AttributeBuilderObject(self._shop_api, 'unit_combination', comb_name)
             comb_objects.append(new_comb)
         return comb_objects
+    
+    def _get_needle_combinations(self) -> List['AttributeBuilderObject']:
+        object_names = self._shop_api.GetObjectNamesInSystem()
+        object_types = self._shop_api.GetObjectTypesInSystem()
+        connected_indices = self._shop_api.GetRelations(self._type, self._name, 'connection_standard')
+        needle_comb_names = [object_names[i] for i in connected_indices if object_types[i] == 'needle_combination']
+        needle_comb_objects = []
+        for needle_comb_name in needle_comb_names:
+            new_needle_comb = AttributeBuilderObject(self._shop_api, 'needle_combination', needle_comb_name)
+            needle_comb_objects.append(new_needle_comb)
+        return needle_comb_objects        
 
     def get_relations(self, direction:str="both", relation_type:str="all", relation_category:str='both') -> List['AttributeBuilderObject']:
         direction = direction.lower()
