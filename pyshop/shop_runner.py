@@ -1,7 +1,7 @@
 import json
 import os
 import sys
-from typing import Dict, List, Optional, Callable
+from typing import Dict, List, Optional, Callable, Union
 import pandas as pd
 import numpy as np
 import requests
@@ -289,3 +289,30 @@ class ShopSession(object):
                 license_dict[info].append(name)
 
         return license_dict
+    
+    def get_message_definitions(self) -> Dict[str, List[Union[str, int]]]:
+        try:
+            messageVector = self.shop_api.GetAllMessages()
+        except AttributeError:
+            print("Function get_message_definitions can only be used for SHOP 15.1.1.0 and newer")
+            return {}
+        
+        allCodes = []
+        allTexts = []
+        allTypes = []
+        allCallCounts = []
+
+        for i in messageVector:
+            allCodes.append(int(i[0]))
+            allTypes.append(i[1])
+            allTexts.append(i[2])
+            allCallCounts.append(int(i[3]))
+        
+        messageDefinitions = {
+            "code": allCodes,
+            "type": allTypes,
+            "text": allTexts,
+            "callCount": allCallCounts
+        }
+
+        return messageDefinitions
