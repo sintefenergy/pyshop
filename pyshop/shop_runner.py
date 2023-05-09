@@ -294,7 +294,7 @@ class ShopSession(object):
         try:
             messageVector = self.shop_api.GetAllMessages()
         except AttributeError:
-            print("Function get_message_definitions can only be used for SHOP 15.2.0.0 and newer")
+            print("Function get_message_definitions can only be used for SHOP 15.1.1.0 and newer")
             return {}
         
         allCodes = []
